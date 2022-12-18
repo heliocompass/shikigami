@@ -29,6 +29,11 @@ function downloadSVG() {
 }
 
 
+type DaysData = {
+  start: Date
+  end: Date
+  data: Array<{ date: number, value: number }>
+}
 // SHIKIGAMIメインルーチン
 export const shikigami = (observer: observerType, flagDraw: {
   isDrawEarth: boolean,
@@ -45,7 +50,7 @@ export const shikigami = (observer: observerType, flagDraw: {
   isDrawSunset: boolean,
   isDrawDayArea: boolean,
   isDrawNightArea: boolean,
-}, drawTime: 'noon' | 'central', eachDaysData: Array<Array<number>>) => {
+}, eachDaysData: DaysData, drawTime: 'noon' | 'central') => {
   let svgImage;
   let flagSunrise: boolean, flagSunset: boolean;
   let flagDay: boolean, flagNight: boolean;
@@ -75,7 +80,7 @@ export const shikigami = (observer: observerType, flagDraw: {
   flagDrawTime = drawTime === 'noon';
 
   // 惑星描画
-  if (flagDraw.isDrawEarth) { drawSun(observer, flagSunrise, flagSunset, flagDay, flagNight, flagDrawTime); }
+  if (flagDraw.isDrawEarth) { drawSun(observer, flagSunrise, flagSunset, flagDay, flagNight, flagDrawTime, eachDaysData); }
   if (flagDraw.isDrawMoon) { isDrawMoon(observer, flagDrawTime); }
   // if (flagDraw.isDrawMercury) { isDrawMercury(o, flagDrawTime); }
   // if (flagDraw.isDrawVenus) { isDrawVenus(o, flagDrawTime); }
@@ -106,7 +111,8 @@ const createSunbyDt = (date: Date, timezone: number) => {
 
 // 描画関数
 /** 地球（太陽） */
-const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boolean, flagDay: boolean, flagNight: boolean, flagDrawTime: boolean) => {
+const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boolean, flagDay: boolean, flagNight: boolean,
+  flagDrawTime: boolean, eachDaysData: DaysData) => {
   const svgInR = 416.9622, svgOutR = 431.13545;
   const svgLineR = 583.54395;
   const svgDaysR = 433.22035;
@@ -291,15 +297,19 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
   }
 
   // 追加グラフ
-  if (flagSunset) {
+  if (true) {
+    console.log(eachDaysData.data);
     svg.groupId(`円環棒グラフ`);
     for (dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
+
+      const daysValue = eachDaysData.data[dateIndex] ? eachDaysData.data[dateIndex].value : 0
+      console.log(daysValue);
       if (!isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
         // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
         svg.groupId(`円環棒グラフ ${sunsetLine[dateIndex].sunsetDt.toLocaleString()}`);
         svg.line(SVG_AUR * sunsetLine[dateIndex].sunsetR,
           sunsetLine[dateIndex].sunsetY,
-          SVG_AUR * sunsetLine[dateIndex].sunsetR + dateIndex,
+          SVG_AUR * sunsetLine[dateIndex].sunsetR + daysValue,
           sunsetLine[dateIndex].sunsetY,
           6,
           'blue');

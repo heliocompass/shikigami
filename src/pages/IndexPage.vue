@@ -67,7 +67,7 @@ const execShikigami = () => {
 
   const checkDt = new Date(year.value, month.value - 1, day.value, 0, 0, 0);  // 設定時刻
   const observer = new ObserverClass(checkDt, name.value, longitude.value, latitude.value, timezone.value);
-  shikigami(observer, flagDraw.value, drawTime.value);
+  shikigami(observer, flagDraw.value, daysData.value, drawTime.value);
 }
 
 // 初期表示時の動作
@@ -76,9 +76,51 @@ onMounted(() => {
   execShikigami();
 })
 
+type DaysData = {
+  start: Date
+  end: Date
+  data: Array<{ date: number, value: number }>
+}
+
+const fileReader = new FileReader();
+// csv ファイルアップロード
+// アップロード検知
+const onFileChange = (e: any) => {
+  const files = e.target.files || e.dataTransfer.files;
+  // console.log(files);
+  const file = files[0];
+  fileReader.readAsText(file);
+
+  fileReader.onload = () => {
+    // console.log(fileReader.result);
+    const resultText = fileReader.result;
+    var result = []; // 最終的な二次元配列を入れるための配列
+    if ('string' == typeof resultText) {
+      var tmp = resultText?.split("\n"); // 改行を区切り文字として行を要素とした配列を生成
+      console.log(tmp);
+      for (var i = 0; i < tmp.length; ++i) {
+
+        const tmpArray = tmp[i].split(',');
+        const line = { date: Number(tmpArray[0]), value: Number(tmpArray[1]) };
+        result.push(line);
+      }
+    }
+    console.log(result);
+    daysData.value.data = result;
+    console.log(daysData.value.data);
+  }
+}
+
+const daysData = ref<DaysData>({
+  start: new Date(),
+  end: new Date(),
+  data: []
+});
+
 // 各値の変更を検知した場合は、SHIKIGAMI再実行
-watch([year, month, day, name, longitude, latitude, timezone, flagDraw], () => {
+watch([year, month, day, name, longitude, latitude, timezone, flagDraw, daysData], () => {
   execShikigami();
+  console.log('再描画')
 }, { deep: true })
 
 
@@ -107,35 +149,6 @@ watch([year, month, day, name, longitude, latitude, timezone, flagDraw], () => {
 //   alert('正しい日付を入力してください');
 //   return;
 // }
-
-const fileReader = new FileReader();
-// csv ファイルアップロード
-const input = document.getElementById('upload-file');
-// アップロード検知
-const onFileChange = (e: any) => {
-
-  const files = e.target.files || e.dataTransfer.files;
-  console.log(files);
-  const file = files[0];
-  fileReader.readAsText(file);
-
-  fileReader.onload = () => {
-    console.log(fileReader.result);
-    const resultText = fileReader.result;
-    var result = []; // 最終的な二次元配列を入れるための配列
-    if ('string' == typeof resultText) {
-      var tmp = resultText?.split("\n"); // 改行を区切り文字として行を要素とした配列を生成
-      // 各行ごとにカンマで区切った文字列を要素とした二次元配列を生成
-      for (var i = 0; i < tmp.length; ++i) {
-        result[i] = tmp[i].split(',');
-      }
-      console.log(result);
-    }
-    inputText.value = result;
-  }
-}
-
-const inputText = ref();
 
 </script>
 
@@ -216,7 +229,7 @@ const inputText = ref();
         </p>
       </form>
       <input id="upload-file" type="file" @change="onFileChange" />
-      <div>{{ inputText }}</div>
+      <a href="./csv/assets/data.csv">サンプルcsv</a>
       <div id="svgImage"></div>
       <div id="copyright">
         <p>
