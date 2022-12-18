@@ -129,4 +129,6 @@ export class SvgClass {
   }
 }
 
+const defaultText = '';
+export default defaultText;
 </script>

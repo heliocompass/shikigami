@@ -92,4 +92,6 @@ export class AstroClass {
   }
 
 }
+const defaultText = '';
+export default defaultText;
 </script>

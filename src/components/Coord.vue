@@ -149,4 +149,6 @@ export class CoordClass {
   }
 
 }
+const defaultText = '';
+export default defaultText;
 </script>

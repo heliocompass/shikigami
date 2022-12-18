@@ -113,4 +113,6 @@ export class SuntimeClass {
     return this.noonMjd + d;
   }
 }
+const defaultText = '';
+export default defaultText;
 </script>

@@ -794,5 +794,7 @@ export const planets = () => {
   }
 
 }
+const defaultText = '';
+export default defaultText;
 
 </script>

@@ -31,4 +31,6 @@ export const Observer = () => {
   }
 }
 
+const defaultText = '';
+export default defaultText;
 </script>
