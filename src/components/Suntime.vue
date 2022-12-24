@@ -23,22 +23,25 @@ export type SuntimeType = {
   southMjd: number;
   northMjd: number;
 
+  startDt: (timeBase: timeBase) => Date;
+  middleDt: (timeBase: timeBase) => Date;
 }
+export type timeBase = 'noon' | 'central';
 
 export class SuntimeClass {
-  initDt: Date;
-  noonDt: Date;
-  sunriseDt: Date;
-  sunsetDt: Date;
-  southDt: Date;
-  northDt: Date;
+  initDt: Date; // 正子 00:00:00
+  noonDt: Date; // 正午 12:00:00
+  northDt: Date; // 北中時刻
+  southDt: Date; // 南中時刻
+  sunriseDt: Date; // 日の出時刻
+  sunsetDt: Date; // 日の入時刻
 
   initMjd: number;
   noonMjd: number;
   sunriseMjd: number;
   sunsetMjd: number;
-  southMjd: number;
   northMjd: number;
+  southMjd: number;
 
   constructor(dt: Date, longitude: number, latitude: number, timezone: number) {
     let sunrise0Mjd: number, sunset0Mjd: number;
@@ -111,6 +114,23 @@ export class SuntimeClass {
       d += delta_d;
     }
     return this.noonMjd + d;
+  }
+
+  /**
+   * 開始時刻
+   * @param timeBase 時刻基準 
+   * @return 正子 or 北中時刻
+   */
+  startDt = (timeBase: timeBase) => {
+    return timeBase === 'noon' ? this.initDt : this.northDt;
+  }
+  /**
+   * 昼時刻
+   * @param timeBase 時刻基準 
+   * @return 正午 or 南中時刻
+   */
+  middleDt = (timeBase: timeBase) => {
+    return timeBase === 'noon' ? this.noonDt : this.southDt;
   }
 }
 let defaultObject = {};

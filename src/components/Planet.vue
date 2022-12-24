@@ -33,9 +33,9 @@ export const planets = () => {
 
   /** 太陽 */
   class Sun implements Star { // extends Planet
-    y: number;
+    y: number; // 角度（度）
     b: number;
-    r: number;
+    r: number; // 半径
 
     /**
      * 太陽

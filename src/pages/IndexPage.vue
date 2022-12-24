@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue';
 import { getYear, getMonth, getDate } from 'date-fns'
 import { Observer } from '../components/Observer.vue'
 import { shikigami } from '../components/Shikigami.vue'
+import type { timeBase } from '../components/Suntime.vue';
 
 
 // 外部ファイル
@@ -52,7 +53,7 @@ const flagDraw = ref({
 })
 
 /** 描画基準時刻 */
-const drawTime = ref<'noon' | 'central'>('noon'); // noon: 正午／正子,  central: 南中／北中
+const drawTime = ref<timeBase>('noon'); // noon: 正午／正子,  central: 南中／北中
 
 /** 現在日を設定する */
 const setCurrentDate = () => {

@@ -4,7 +4,7 @@ import { SvgClass } from './Svg.vue'
 import type { svgType } from './Svg.vue'
 import { AstroClass } from './Astro.vue'
 import { SuntimeClass } from './Suntime.vue'
-import type { SuntimeType } from './Suntime.vue'
+import type { SuntimeType, timeBase } from './Suntime.vue'
 import { planets } from './Planet.vue'
 import type { Star, Satellite } from './Planet.vue'
 const { Sun, Moon } = planets()
@@ -50,7 +50,7 @@ export const shikigami = (observer: observerType, flagDraw: {
   isDrawSunset: boolean,
   isDrawDayArea: boolean,
   isDrawNightArea: boolean,
-}, eachDaysData: DaysData, drawTime: 'noon' | 'central') => {
+}, eachDaysData: DaysData, drawTime: timeBase) => {
   let svgImage;
   let flagSunrise: boolean, flagSunset: boolean;
   let flagDay: boolean, flagNight: boolean;
@@ -80,7 +80,7 @@ export const shikigami = (observer: observerType, flagDraw: {
   flagDrawTime = drawTime === 'noon';
 
   // 惑星描画
-  if (flagDraw.isDrawEarth) { drawSun(observer, flagSunrise, flagSunset, flagDay, flagNight, flagDrawTime, eachDaysData); }
+  if (flagDraw.isDrawEarth) { drawSun(observer, flagSunrise, flagSunset, flagDay, flagNight, drawTime, eachDaysData); }
   if (flagDraw.isDrawMoon) { isDrawMoon(observer, flagDrawTime); }
   // if (flagDraw.isDrawMercury) { isDrawMercury(o, flagDrawTime); }
   // if (flagDraw.isDrawVenus) { isDrawVenus(o, flagDrawTime); }
@@ -112,10 +112,11 @@ const createSunbyDt = (date: Date, timezone: number) => {
 // 描画関数
 /** 地球（太陽） */
 const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boolean, flagDay: boolean, flagNight: boolean,
-  flagDrawTime: boolean, eachDaysData: DaysData) => {
-  const svgInR = 416.9622, svgOutR = 431.13545;
+  drawTime: timeBase, eachDaysData: DaysData) => {
+  const svgInR = 416.9622; // 地球近点軌道の半径(px)
+  const svgOutR = 431.13545; // 地球遠点軌道の半径(px)
   const svgLineR = 583.54395;
-  const svgDaysR = 433.22035;
+  const svgDaysR = svgOutR + 2; // 通日ラベルの描画半径(地球遠点軌道の少し外側)(px)
   const svgSize = 1.723;
   const strokeColor = '#231815';
   const guideSunriseColor = '#FF9900', guideSunsetColor = '#CC6600';
@@ -126,9 +127,8 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
   let sunDateLine: { suntimeDt: string, sunR: number, sunY: number }[] = [];
   let sunriseLine: { sunriseDt: Date, sunriseR: number, sunriseY: number }[] = [];
   let sunsetLine: { sunsetDt: Date, sunsetR: number, sunsetY: number }[] = [];
-  let sunBall: { suntimeDt: string, sunR: number, sunY: number }[] = [];
-  let sunNumber: { suntimeDt: string, offsetR: number, sunY: number, daysAngle: number }[] = [];
-  let daysAngle: number, offsetR: number;
+  let earthBall: { suntimeDt: string, sunR: number, sunY: number }[] = [];
+  let sunNumber: { suntimeDt: string, sunY: number, }[] = [];
   let dateIndex: number;
 
   // 1 周の描画数を決める（日数）
@@ -142,9 +142,9 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
   suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
 
   // 正子にするか北中にするか選ぶ
-  sun = createSunbyDt((flagDrawTime) ? suntime.initDt : suntime.northDt, observer.timezone);
+  sun = createSunbyDt(suntime.startDt(drawTime), observer.timezone);
   // 日付線
-  sunDateLine[1] = { suntimeDt: (flagDrawTime) ? suntime.initDt.toLocaleString() : suntime.northDt.toLocaleString(), sunR: sun.r, sunY: sun.y };
+  sunDateLine[1] = { suntimeDt: suntime.startDt(drawTime).toLocaleString(), sunR: sun.r, sunY: sun.y };
 
   // 日の出線
   sunrise = createSunbyDt(suntime.sunriseDt, observer.timezone);
@@ -161,8 +161,8 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
 
     // 日付線
     // 正子にするか北中にするか選ぶ
-    sun = createSunbyDt(flagDrawTime ? suntime.initDt : suntime.northDt, observer.timezone);
-    sunDateLine[dateIndex] = { suntimeDt: flagDrawTime ? suntime.initDt.toLocaleString() : suntime.northDt.toLocaleString(), sunR: sun.r, sunY: sun.y };
+    sun = createSunbyDt(suntime.startDt(drawTime), observer.timezone);
+    sunDateLine[dateIndex] = { suntimeDt: suntime.startDt(drawTime).toLocaleString(), sunR: sun.r, sunY: sun.y };
 
     // 日の出線
     sunrise = createSunbyDt(suntime.sunriseDt, observer.timezone);
@@ -173,49 +173,27 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
     sunsetLine[dateIndex] = { sunsetDt: suntime.sunsetDt, sunsetR: sunset.r, sunsetY: sunset.y };
   }
 
+  // 1日目
   // 最初の昼起点要素
   drawDt = new Date(observer.initDt);
   suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-
   // 正午にするか南中にするか選ぶ
-  sun = createSunbyDt(flagDrawTime ? suntime.noonDt : suntime.southDt, observer.timezone);
+  sun = createSunbyDt(suntime.middleDt(drawTime), observer.timezone);
   // 地球玉
-  // 正午にするか南中にするか選ぶ
-  sunBall[1] = { suntimeDt: flagDrawTime ? suntime.noonDt.toLocaleString() : suntime.southDt.toLocaleString(), sunR: sun.r, sunY: sun.y };
-
+  earthBall[1] = { suntimeDt: suntime.middleDt(drawTime).toLocaleString(), sunR: sun.r, sunY: sun.y };
   // 通日ラベル
-  if (sun.y >= 180) {
-    daysAngle = 270 - sun.y;
-    offsetR = 2.25;
-  } else {
-    daysAngle = 90 - sun.y;
-    offsetR = 0;
-  }
+  sunNumber[1] = { suntimeDt: suntime.middleDt(drawTime).toLocaleString(), sunY: sun.y, };
 
-  /** 正午にするか南中にするか選ぶ */
-  sunNumber[1] = { suntimeDt: flagDrawTime ? suntime.noonDt.toLocaleString() : suntime.southDt.toLocaleString(), offsetR: offsetR, sunY: sun.y, daysAngle: daysAngle };
-
-  /** 最終までの昼起点要素ループ */
+  // 2日目~365日目
   for (dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
     drawDt.setDate(drawDt.getDate() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-
     // 正午にするか南中にするか選ぶ
-    sun = createSunbyDt(flagDrawTime ? suntime.noonDt : suntime.southDt, observer.timezone);
+    sun = createSunbyDt(suntime.middleDt(drawTime), observer.timezone);
     // 地球玉
-    // 正午にするか南中にするか選ぶ
-    sunBall[dateIndex] = { suntimeDt: flagDrawTime ? suntime.noonDt.toLocaleString() : suntime.southDt.toLocaleString(), sunR: sun.r, sunY: sun.y };
-
+    earthBall[dateIndex] = { suntimeDt: suntime.middleDt(drawTime).toLocaleString(), sunR: sun.r, sunY: sun.y };
     // 通日ラベル
-    if (sun.y >= 180) {
-      daysAngle = 270 - sun.y;
-      offsetR = 2.25;
-    } else {
-      daysAngle = 90 - sun.y;
-      offsetR = 0;
-    }
-    // 正午にするか南中にするか選ぶ
-    sunNumber[dateIndex] = { suntimeDt: flagDrawTime ? suntime.noonDt.toLocaleString() : suntime.southDt.toLocaleString(), offsetR: offsetR, sunY: sun.y, daysAngle: daysAngle };
+    sunNumber[dateIndex] = { suntimeDt: suntime.middleDt(drawTime).toLocaleString(), sunY: sun.y, };
   }
 
   // ここから地球SVG生成
@@ -223,11 +201,11 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
   // 日付線を描画
   drawSvgDateLines(svg, sunDateLine, rotateDays, svgLineR, strokeColor);
   // 地球玉を描画
-  drawSvgEarthBalls(svg, sunBall, rotateDays, svgSize, strokeColor);
+  drawSvgEarthBalls(svg, earthBall, rotateDays, svgSize, strokeColor);
   // 通日ラベルを描画
   drawSvgDateLabels(svg, sunNumber, rotateDays, svgDaysR);
   // 地球移動線を描画
-  drawSvgEarthOrbits(svg, sunBall, rotateDays,);
+  drawSvgEarthOrbits(svg, earthBall, rotateDays,);
   // 地球近点軌道を描画
   drawSvgEarthPerigee(svg, svgInR);
   // 地球遠点軌道を描画
@@ -361,20 +339,20 @@ const drawSvgNighttimeAreas = (
 /** 地球玉をSVG描画 */
 const drawSvgEarthBalls = (
   svg: svgType,
-  sunBall: { suntimeDt: string; sunR: number; sunY: number; }[],
+  earthBall: { suntimeDt: string; sunR: number; sunY: number; }[],
   rotateDays: number,
   svgSize: number,
   strokeColor: string = "#231815"
 ) => {
   svg.groupId(`地球玉`);
   // 最初だけ描画色を変えるのでループ分け
-  svg.groupId(`地球玉 ${sunBall[1].suntimeDt}`);
-  svg.circle(SVG_AUR * sunBall[1].sunR, sunBall[1].sunY, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
+  svg.groupId(`地球玉 ${earthBall[1].suntimeDt}`);
+  svg.circle(SVG_AUR * earthBall[1].sunR, earthBall[1].sunY, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
   svg.groupFooter();
 
   for (let dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
-    svg.groupId(`地球玉 ${sunBall[dateIndex].suntimeDt}`);
-    svg.circle(SVG_AUR * sunBall[dateIndex].sunR, sunBall[dateIndex].sunY, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupId(`地球玉 ${earthBall[dateIndex].suntimeDt}`);
+    svg.circle(SVG_AUR * earthBall[dateIndex].sunR, earthBall[dateIndex].sunY, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
     svg.groupFooter();
   }
   svg.groupFooter();
@@ -383,14 +361,25 @@ const drawSvgEarthBalls = (
 /** 通日ラベルをSVG描画 */
 const drawSvgDateLabels = (
   svg: svgType,
-  sunNumber: { suntimeDt: string; offsetR: number; sunY: number; daysAngle: number; }[],
+  sunNumber: { suntimeDt: string; sunY: number; }[],
   rotateDays: number,
   svgDaysR: number,
 ) => {
+
   svg.groupId(`通日ラベル`);
   for (let dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
+    let daysAngle: number;
+    let offsetR: number;
+    // 通日ラベルの表示方向
+    if (sunNumber[dateIndex].sunY >= 180) { // 春分～夏～秋分の間
+      daysAngle = 270 - sunNumber[dateIndex].sunY;
+      offsetR = 2.25;
+    } else { // 春分～夏～秋分の間
+      daysAngle = 90 - sunNumber[dateIndex].sunY;
+      offsetR = 0;
+    }
     svg.groupId(`通日ラベル${('000' + dateIndex).slice(-3)} ${sunNumber[dateIndex].suntimeDt}`);
-    svg.text('days', svgDaysR + sunNumber[dateIndex].offsetR, sunNumber[dateIndex].sunY, sunNumber[dateIndex].daysAngle, ('000' + dateIndex).slice(-3));
+    svg.text('days', svgDaysR + offsetR, sunNumber[dateIndex].sunY, daysAngle, ('000' + dateIndex).slice(-3));
     svg.groupFooter();
   }
   svg.groupFooter();
@@ -399,17 +388,17 @@ const drawSvgDateLabels = (
 /** 地球移動線をSVG描画 */
 const drawSvgEarthOrbits = (
   svg: svgType,
-  sunBall: { suntimeDt: string; sunR: number; sunY: number; }[],
+  earthBall: { suntimeDt: string; sunR: number; sunY: number; }[],
   rotateDays: number,
 ) => {
   svg.groupId(`地球移動線`);
   for (let dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
-    svg.groupId(`地球移動線 ${sunBall[dateIndex].suntimeDt}`);
-    svg.line(SVG_AUR * sunBall[dateIndex - 1].sunR, sunBall[dateIndex - 1].sunY, SVG_AUR * sunBall[dateIndex].sunR, sunBall[dateIndex].sunY, SVG_LINE_WIDTH, BLACK_COLOR);
+    svg.groupId(`地球移動線 ${earthBall[dateIndex].suntimeDt}`);
+    svg.line(SVG_AUR * earthBall[dateIndex - 1].sunR, earthBall[dateIndex - 1].sunY, SVG_AUR * earthBall[dateIndex].sunR, earthBall[dateIndex].sunY, SVG_LINE_WIDTH, BLACK_COLOR);
     svg.groupFooter();
   }
   svg.groupId(`地球移動線 閉じる`);
-  svg.line(SVG_AUR * sunBall[rotateDays].sunR, sunBall[rotateDays].sunY, SVG_AUR * sunBall[1].sunR, sunBall[1].sunY, SVG_LINE_WIDTH, BLACK_COLOR);
+  svg.line(SVG_AUR * earthBall[rotateDays].sunR, earthBall[rotateDays].sunY, SVG_AUR * earthBall[1].sunR, earthBall[1].sunY, SVG_LINE_WIDTH, BLACK_COLOR);
   svg.groupFooter();
   svg.groupFooter();
 }
