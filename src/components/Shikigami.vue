@@ -220,81 +220,26 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
 
   // ここから地球SVG生成
   svg.groupId(`地球`);
-
-  svg.groupId(`日付線`);
-  // 最初だけ描画色を変えるのでループ分け
-  svg.groupId(`日付線' ${sunDateLine[1].suntimeDt}`);
-  svg.line(SVG_AUR * sunDateLine[1].sunR, sunDateLine[1].sunY, svgLineR, sunDateLine[1].sunY, SVG_LINE_WIDTH, GREEN_COLOR);
-  svg.groupFooter();
-
-  for (dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
-    svg.groupId(`日付線 ${sunDateLine[dateIndex].suntimeDt}`);
-    svg.line(SVG_AUR * sunDateLine[dateIndex].sunR, sunDateLine[dateIndex].sunY, svgLineR, sunDateLine[dateIndex].sunY, SVG_LINE_WIDTH, strokeColor);
-    svg.groupFooter();
-  }
-  svg.groupFooter();
-
-  if (flagSunrise) {
-    svg.groupId(`日の出線`);
-    for (dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
-      // ここでsuntime.sunriseDtを判定に使うので、文字列化はそのあとで
-      if (flagSunrise && !isNaN(sunriseLine[dateIndex].sunriseDt.getTime())) {
-        svg.groupId(`日の出線 ${sunriseLine[dateIndex].sunriseDt.toLocaleString()}`);
-        svg.line(SVG_AUR * sunriseLine[dateIndex].sunriseR, sunriseLine[dateIndex].sunriseY, svgLineR, sunriseLine[dateIndex].sunriseY, SVG_LINE_WIDTH, guideSunriseColor);
-        svg.groupFooter();
-      }
-    }
-    svg.groupFooter();
-  }
-
-  if (flagSunset) {
-    svg.groupId(`日の入り線`);
-    for (dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
-      if (!isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
-        // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
-        svg.groupId(`日の入り線 ${sunsetLine[dateIndex].sunsetDt.toLocaleString()}`);
-        svg.line(SVG_AUR * sunsetLine[dateIndex].sunsetR, sunsetLine[dateIndex].sunsetY, svgLineR, sunsetLine[dateIndex].sunsetY, SVG_LINE_WIDTH, guideSunsetColor);
-        svg.groupFooter();
-      }
-    }
-    svg.groupFooter();
-  }
-
-  if (flagDay) {
-    svg.groupId(`昼エリア`);
-
-    for (dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
-      if (!isNaN(sunriseLine[dateIndex].sunriseDt.getTime()) && !isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
-        // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
-        svg.groupId(`'昼エリア' + ${sunriseLine[dateIndex].sunriseDt.toLocaleString()} ${sunsetLine[dateIndex].sunsetDt.toLocaleString()}`);
-        svg.area(SVG_AUR * sunriseLine[dateIndex].sunriseR, sunriseLine[dateIndex].sunriseY, SVG_AUR * sunsetLine[dateIndex].sunsetR, sunsetLine[dateIndex].sunsetY, svgLineR, SVG_LINE_WIDTH, guideSunriseColor, `none`);
-        svg.groupFooter();
-      }
-    }
-    svg.groupFooter();
-  }
-
-  if (flagNight) {
-    svg.groupId(`夜エリア`);
-
-    // 最終の夜エリアは開始日の日の出時間につなぐ
-    for (dateIndex = 1; dateIndex <= rotateDays - 1; dateIndex++) {
-      if (!isNaN(sunriseLine[dateIndex + 1].sunriseDt.getTime()) && !isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
-        // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
-        svg.groupId(`夜エリア ${sunsetLine[dateIndex].sunsetDt.toLocaleString()} ${sunriseLine[dateIndex + 1].sunriseDt.toLocaleString()}`);
-        svg.area(SVG_AUR * sunriseLine[dateIndex + 1].sunriseR, sunriseLine[dateIndex + 1].sunriseY, SVG_AUR * sunsetLine[dateIndex].sunsetR, sunsetLine[dateIndex].sunsetY, svgLineR, SVG_LINE_WIDTH, guideSunsetColor, `none`);
-        svg.groupFooter();
-      }
-    }
-
-    if (!isNaN(sunsetLine[rotateDays].sunsetDt.getTime())) {
-      // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
-      svg.groupId(`夜エリア ${sunsetLine[rotateDays].sunsetDt.toLocaleString()} 描画開始日の日の出日時`);
-      svg.area(SVG_AUR * sunriseLine[1].sunriseR, sunriseLine[1].sunriseY, SVG_AUR * sunsetLine[rotateDays].sunsetR, sunsetLine[rotateDays].sunsetY, svgLineR, SVG_LINE_WIDTH, guideSunsetColor, `none`);
-      svg.groupFooter();
-    }
-    svg.groupFooter();
-  }
+  // 日付線を描画
+  drawSvgDateLines(svg, sunDateLine, rotateDays, svgLineR, strokeColor);
+  // 地球玉を描画
+  drawSvgEarthBalls(svg, sunBall, rotateDays, svgSize, strokeColor);
+  // 通日ラベルを描画
+  drawSvgDateLabels(svg, sunNumber, rotateDays, svgDaysR);
+  // 地球移動線を描画
+  drawSvgEarthOrbits(svg, sunBall, rotateDays,);
+  // 地球近点軌道を描画
+  drawSvgEarthPerigee(svg, svgInR);
+  // 地球遠点軌道を描画
+  drawSvgEarthApogee(svg, svgOutR);
+  // 日の出線を描画
+  if (flagSunrise) { drawSvgSunriseLines(svg, sunriseLine, rotateDays, svgLineR, guideSunriseColor); };
+  // 日の入線を描画
+  if (flagSunset) { drawSvgSunsetLines(svg, sunsetLine, rotateDays, svgLineR, guideSunsetColor); };
+  // 昼エリアを描画
+  if (flagDay) { drawSvgDaytimeAreas(svg, sunriseLine, sunsetLine, rotateDays, svgLineR, guideSunriseColor); }
+  // 夜エリアを描画
+  if (flagNight) { drawSvgNighttimeAreas(svg, sunriseLine, sunsetLine, rotateDays, svgLineR, guideSunsetColor); }
 
   // 追加グラフ
   if (true) {
@@ -319,48 +264,194 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
     svg.groupFooter();
   }
 
+  svg.groupFooter();
+}
+
+/**  日付線をSVG描画 */
+const drawSvgDateLines = (
+  svg: svgType,
+  sunDateLine: { suntimeDt: string, sunR: number, sunY: number }[] = [],
+  rotateDays: number,
+  svgLineR: number,
+  strokeColor: string = '#231815',
+) => {
+  svg.groupId(`日付線`);
+  // 1日目
+  svg.groupId(`日付線' ${sunDateLine[1].suntimeDt}`);
+  svg.line(SVG_AUR * sunDateLine[1].sunR, sunDateLine[1].sunY, svgLineR, sunDateLine[1].sunY, SVG_LINE_WIDTH, GREEN_COLOR);
+  svg.groupFooter();
+  // 2日目~355日目
+  for (let dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
+    svg.groupId(`日付線 ${sunDateLine[dateIndex].suntimeDt}`);
+    svg.line(SVG_AUR * sunDateLine[dateIndex].sunR, sunDateLine[dateIndex].sunY, svgLineR, sunDateLine[dateIndex].sunY, SVG_LINE_WIDTH, strokeColor);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+}
+
+/** 日の出線をSVG描画 */
+const drawSvgSunriseLines = (
+  svg: svgType,
+  sunriseLine: { sunriseDt: Date; sunriseR: number; sunriseY: number; }[],
+  rotateDays: number,
+  svgLineR: number,
+  guideSunriseColor: string = '#FF9900'
+) => {
+  svg.groupId(`日の出線`);
+  for (let dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
+    // ここでsuntime.sunriseDtを判定に使うので、文字列化はそのあとで
+    if (!isNaN(sunriseLine[dateIndex].sunriseDt.getTime())) {
+      svg.groupId(`日の出線 ${sunriseLine[dateIndex].sunriseDt.toLocaleString()}`);
+      svg.line(SVG_AUR * sunriseLine[dateIndex].sunriseR, sunriseLine[dateIndex].sunriseY, svgLineR, sunriseLine[dateIndex].sunriseY, SVG_LINE_WIDTH, guideSunriseColor);
+      svg.groupFooter();
+    }
+  }
+  svg.groupFooter();
+}
+
+
+/** 日の入線をSVG描画 */
+const drawSvgSunsetLines = (
+  svg: svgType,
+  sunsetLine: { sunsetDt: Date; sunsetR: number; sunsetY: number; }[],
+  rotateDays: number,
+  svgLineR: number,
+  guideSunsetColor: string = '#CC6600'
+) => {
+  svg.groupId(`日の入り線`);
+  for (let dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
+    if (!isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
+      // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
+      svg.groupId(`日の入り線 ${sunsetLine[dateIndex].sunsetDt.toLocaleString()}`);
+      svg.line(SVG_AUR * sunsetLine[dateIndex].sunsetR, sunsetLine[dateIndex].sunsetY, svgLineR, sunsetLine[dateIndex].sunsetY, SVG_LINE_WIDTH, guideSunsetColor);
+      svg.groupFooter();
+    }
+  }
+  svg.groupFooter();
+}
+
+/** 昼エリアをSVG描画 */
+const drawSvgDaytimeAreas = (
+  svg: svgType,
+  sunriseLine: { sunriseDt: Date; sunriseR: number; sunriseY: number; }[],
+  sunsetLine: { sunsetDt: Date; sunsetR: number; sunsetY: number; }[],
+  rotateDays: number,
+  svgLineR: number,
+  guideSunriseColor: string = '#FF9900',
+) => {
+  svg.groupId(`昼エリア`);
+  for (let dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
+    if (!isNaN(sunriseLine[dateIndex].sunriseDt.getTime()) && !isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
+      // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
+      svg.groupId(`'昼エリア' + ${sunriseLine[dateIndex].sunriseDt.toLocaleString()} ${sunsetLine[dateIndex].sunsetDt.toLocaleString()}`);
+      svg.area(SVG_AUR * sunriseLine[dateIndex].sunriseR, sunriseLine[dateIndex].sunriseY, SVG_AUR * sunsetLine[dateIndex].sunsetR, sunsetLine[dateIndex].sunsetY, svgLineR, SVG_LINE_WIDTH, guideSunriseColor, `none`);
+      svg.groupFooter();
+    }
+  }
+  svg.groupFooter();
+}
+
+/** 夜エリアをSVG描画 */
+const drawSvgNighttimeAreas = (
+  svg: svgType,
+  sunriseLine: { sunriseDt: Date; sunriseR: number; sunriseY: number; }[],
+  sunsetLine: { sunsetDt: Date; sunsetR: number; sunsetY: number; }[],
+  rotateDays: number,
+  svgLineR: number,
+  guideSunsetColor: string = '#CC6600'
+) => {
+  svg.groupId(`夜エリア`);
+  // 最終の夜エリアは開始日の日の出時間につなぐ
+  for (let dateIndex = 1; dateIndex <= rotateDays - 1; dateIndex++) {
+    if (!isNaN(sunriseLine[dateIndex + 1].sunriseDt.getTime()) && !isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
+      // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
+      svg.groupId(`夜エリア ${sunsetLine[dateIndex].sunsetDt.toLocaleString()} ${sunriseLine[dateIndex + 1].sunriseDt.toLocaleString()}`);
+      svg.area(SVG_AUR * sunriseLine[dateIndex + 1].sunriseR, sunriseLine[dateIndex + 1].sunriseY, SVG_AUR * sunsetLine[dateIndex].sunsetR, sunsetLine[dateIndex].sunsetY, svgLineR, SVG_LINE_WIDTH, guideSunsetColor, `none`);
+      svg.groupFooter();
+    }
+  }
+  if (!isNaN(sunsetLine[rotateDays].sunsetDt.getTime())) {
+    // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
+    svg.groupId(`夜エリア ${sunsetLine[rotateDays].sunsetDt.toLocaleString()} 描画開始日の日の出日時`);
+    svg.area(SVG_AUR * sunriseLine[1].sunriseR, sunriseLine[1].sunriseY, SVG_AUR * sunsetLine[rotateDays].sunsetR, sunsetLine[rotateDays].sunsetY, svgLineR, SVG_LINE_WIDTH, guideSunsetColor, `none`);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+}
+
+/** 地球玉をSVG描画 */
+const drawSvgEarthBalls = (
+  svg: svgType,
+  sunBall: { suntimeDt: string; sunR: number; sunY: number; }[],
+  rotateDays: number,
+  svgSize: number,
+  strokeColor: string = "#231815"
+) => {
   svg.groupId(`地球玉`);
   // 最初だけ描画色を変えるのでループ分け
   svg.groupId(`地球玉 ${sunBall[1].suntimeDt}`);
   svg.circle(SVG_AUR * sunBall[1].sunR, sunBall[1].sunY, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
   svg.groupFooter();
 
-  for (dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
+  for (let dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
     svg.groupId(`地球玉 ${sunBall[dateIndex].suntimeDt}`);
     svg.circle(SVG_AUR * sunBall[dateIndex].sunR, sunBall[dateIndex].sunY, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
     svg.groupFooter();
   }
   svg.groupFooter();
+};
 
+/** 通日ラベルをSVG描画 */
+const drawSvgDateLabels = (
+  svg: svgType,
+  sunNumber: { suntimeDt: string; offsetR: number; sunY: number; daysAngle: number; }[],
+  rotateDays: number,
+  svgDaysR: number,
+) => {
   svg.groupId(`通日ラベル`);
-  for (dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
+  for (let dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
     svg.groupId(`通日ラベル${('000' + dateIndex).slice(-3)} ${sunNumber[dateIndex].suntimeDt}`);
     svg.text('days', svgDaysR + sunNumber[dateIndex].offsetR, sunNumber[dateIndex].sunY, sunNumber[dateIndex].daysAngle, ('000' + dateIndex).slice(-3));
     svg.groupFooter();
   }
   svg.groupFooter();
+}
 
+/** 地球移動線をSVG描画 */
+const drawSvgEarthOrbits = (
+  svg: svgType,
+  sunBall: { suntimeDt: string; sunR: number; sunY: number; }[],
+  rotateDays: number,
+) => {
   svg.groupId(`地球移動線`);
-  for (dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
+  for (let dateIndex = 2; dateIndex <= rotateDays; dateIndex++) {
     svg.groupId(`地球移動線 ${sunBall[dateIndex].suntimeDt}`);
     svg.line(SVG_AUR * sunBall[dateIndex - 1].sunR, sunBall[dateIndex - 1].sunY, SVG_AUR * sunBall[dateIndex].sunR, sunBall[dateIndex].sunY, SVG_LINE_WIDTH, BLACK_COLOR);
     svg.groupFooter();
   }
-
   svg.groupId(`地球移動線 閉じる`);
   svg.line(SVG_AUR * sunBall[rotateDays].sunR, sunBall[rotateDays].sunY, SVG_AUR * sunBall[1].sunR, sunBall[1].sunY, SVG_LINE_WIDTH, BLACK_COLOR);
   svg.groupFooter();
-
   svg.groupFooter();
+}
 
+/** 地球近点軌道をSVG描画 */
+const drawSvgEarthPerigee = (
+  svg: svgType,
+  svgInR: number,
+) => {
   svg.groupId(`地球近点軌道`);
   svg.circle(0, 0, svgInR, SVG_LINE_WIDTH, RED_COLOR, `none`);
   svg.groupFooter();
+}
 
+/** 地球遠点軌道をSVG描画 */
+const drawSvgEarthApogee = (
+  svg: svgType,
+  svgOutR: number,
+) => {
   svg.groupId(`地球遠点軌道`);
   svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
-  svg.groupFooter();
-
   svg.groupFooter();
 }
 
