@@ -149,6 +149,6 @@ export class CoordClass {
   }
 
 }
-const defaultText = '';
-export default defaultText;
+let defaultObject = {};
+export default defaultObject;
 </script>

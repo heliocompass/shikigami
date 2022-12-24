@@ -486,7 +486,7 @@ const isDrawMoon = (observer: observerType, flagDrawTime: boolean) => {
 
   svg.groupFooter();
 }
-const defaultText = '';
-export default defaultText;
+let defaultObject = {};
+export default defaultObject;
 </script>
 

@@ -129,6 +129,6 @@ export class SvgClass {
   }
 }
 
-const defaultText = '';
-export default defaultText;
+let defaultObject = {};
+export default defaultObject;
 </script>
