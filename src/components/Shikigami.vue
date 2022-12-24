@@ -242,27 +242,7 @@ const drawSun = (observer: observerType, flagSunrise: boolean, flagSunset: boole
   if (flagNight) { drawSvgNighttimeAreas(svg, sunriseLine, sunsetLine, rotateDays, svgLineR, guideSunsetColor); }
 
   // 追加グラフ
-  if (true) {
-    console.log(eachDaysData.data);
-    svg.groupId(`円環棒グラフ`);
-    for (dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
-
-      const daysValue = eachDaysData.data[dateIndex] ? eachDaysData.data[dateIndex].value : 0
-      console.log(daysValue);
-      if (!isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
-        // ここでsuntime.sunsetDtを判定に使うので、文字列化はそのあとで
-        svg.groupId(`円環棒グラフ ${sunsetLine[dateIndex].sunsetDt.toLocaleString()}`);
-        svg.line(SVG_AUR * sunsetLine[dateIndex].sunsetR,
-          sunsetLine[dateIndex].sunsetY,
-          SVG_AUR * sunsetLine[dateIndex].sunsetR + daysValue,
-          sunsetLine[dateIndex].sunsetY,
-          6,
-          'blue');
-        svg.groupFooter();
-      }
-    }
-    svg.groupFooter();
-  }
+  drawSvgInputDataGraph(svg, eachDaysData, sunsetLine, rotateDays);
 
   svg.groupFooter();
 }
@@ -308,7 +288,6 @@ const drawSvgSunriseLines = (
   }
   svg.groupFooter();
 }
-
 
 /** 日の入線をSVG描画 */
 const drawSvgSunsetLines = (
@@ -454,6 +433,31 @@ const drawSvgEarthApogee = (
   svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
   svg.groupFooter();
 }
+
+/** 任意の円環棒グラフを地球の日付ラインにSVG描画する */
+const drawSvgInputDataGraph = (
+  svg: svgType,
+  eachDaysData: DaysData,
+  sunsetLine: { sunsetDt: Date; sunsetR: number; sunsetY: number; }[],
+  rotateDays: number,
+) => {
+  svg.groupId(`円環棒グラフ`);
+  for (let dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
+    const daysValue = eachDaysData.data[dateIndex] ? eachDaysData.data[dateIndex].value : 0
+    if (!isNaN(sunsetLine[dateIndex].sunsetDt.getTime())) {
+      svg.groupId(`円環棒グラフ ${sunsetLine[dateIndex].sunsetDt.toLocaleString()}`);
+      svg.line(SVG_AUR * sunsetLine[dateIndex].sunsetR,
+        sunsetLine[dateIndex].sunsetY,
+        SVG_AUR * sunsetLine[dateIndex].sunsetR + daysValue,
+        sunsetLine[dateIndex].sunsetY,
+        6,
+        'blue');
+      svg.groupFooter();
+    }
+  }
+  svg.groupFooter();
+}
+
 
 /** 月 */
 const isDrawMoon = (observer: observerType, flagDrawTime: boolean) => {
