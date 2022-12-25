@@ -14,8 +14,6 @@ const BLACK_COLOR = '#000000';
 const RED_COLOR = '#FF0000';
 const GREEN_COLOR = '#33CC33';
 
-// let svg: svgType;
-
 type DaysData = {
   start: Date
   end: Date
@@ -46,9 +44,17 @@ type EarthPositions = {
   sunY: number,
 }[];
 
-// 描画関数
-/** 地球（太陽） */
-export const drawSun = (
+/**
+ * 地球を描画
+ * @param svg 
+ * @param observer 
+ * @param flagSunrise 
+ * @param flagSunset 
+ * @param flagDay 
+ * @param flagNight 
+ * @param drawTime 
+ */
+export const drawEarth = (
   svg: svgType,
   observer: observerType,
   flagSunrise: boolean,
@@ -56,7 +62,6 @@ export const drawSun = (
   flagDay: boolean,
   flagNight: boolean,
   drawTime: timeBase,
-  eachDaysData: DaysData
 ) => {
   const svgInR = 416.9622; // 地球近点軌道の半径(px)
   const svgOutR = 431.13545; // 地球遠点軌道の半径(px)
@@ -121,9 +126,6 @@ export const drawSun = (
   if (flagDay) { drawSvgDaytimeAreas(svg, sunrisePositions, sunsetPositions, svgLineR, guideSunriseColor); } Date
   // 夜エリアを描画
   if (flagNight) { drawSvgNighttimeAreas(svg, sunrisePositions, sunsetPositions, svgLineR, guideSunsetColor); }
-
-  // 追加グラフ
-  drawSvgInputDataGraph(svg, eachDaysData, noonPositions);
 
   svg.groupFooter();
 }
@@ -352,30 +354,6 @@ const drawSvgEarthApogee = (
   svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
   svg.groupFooter();
 }
-
-/** 任意の円環棒グラフを地球の日付ラインにSVG描画する */
-const drawSvgInputDataGraph = (
-  svg: svgType,
-  eachDaysData: DaysData,
-  noonPositions: { datetime: Date; sunR: number; sunY: number; }[],
-) => {
-  svg.groupId(`円環棒グラフ`);
-  for (let dateIndex = 0; dateIndex < noonPositions.length; dateIndex++) {
-    const daysValue = eachDaysData.data[dateIndex] ? eachDaysData.data[dateIndex].value : 0
-    if (!isNaN(noonPositions[dateIndex].datetime.getTime())) {
-      svg.groupId(`円環棒グラフ ${noonPositions[dateIndex].datetime.toLocaleString()}`);
-      svg.line(SVG_AUR * noonPositions[dateIndex].sunR,
-        noonPositions[dateIndex].sunY,
-        SVG_AUR * noonPositions[dateIndex].sunR + daysValue,
-        noonPositions[dateIndex].sunY,
-        6,
-        'blue');
-      svg.groupFooter();
-    }
-  }
-  svg.groupFooter();
-}
-
 
 let defaultObject = {};
 export default defaultObject;

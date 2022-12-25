@@ -23,7 +23,7 @@ type MoonPositions = {
 /**
  * １年間の6時間数
  * @param startDate 開始日
- * @return 1年間の6時間数
+ * @return 1年間の6時間数 ※365*6 or 366*6
  */
 const rotate6HoursFromStartDate = (startDate: Date): number => {
   const startDt = new Date(startDate);
@@ -129,7 +129,6 @@ const getPreDate = (baseDate: Date, subCount: number) => {
   preDate.setHours(preDate.getHours() - subCount * 6); // 6時間ずつ
   return preDate;
 }
-
 
 /**
  * 月波を描画

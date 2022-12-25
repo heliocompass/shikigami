@@ -7,8 +7,9 @@ import { SuntimeClass } from './Suntime.vue'
 import type { SuntimeType, timeBase } from './Suntime.vue'
 import { planets } from './Planet.vue'
 import type { Star, Satellite } from './Planet.vue'
-import { drawSun } from './svg/SvgSun.vue'
+import { drawEarth } from './svg/SvgSun.vue'
 import { drawMoon } from './svg/SvgMoon.vue'
+import { drawGraph } from './svg/SvgGraph.vue'
 const { Sun, Moon } = planets()
 
 
@@ -83,7 +84,8 @@ export const shikigami = (observer: observerType, flagDraw: {
   flagDrawTime = drawTime === 'clock';
 
   // 惑星描画
-  if (flagDraw.isDrawEarth) { drawSun(svg, observer, flagSunrise, flagSunset, flagDay, flagNight, drawTime, eachDaysData); }
+  if (flagDraw.isDrawEarth) { drawEarth(svg, observer, flagSunrise, flagSunset, flagDay, flagNight, drawTime,); }
+  if (flagDraw.isDrawEarth) { drawGraph(svg, observer, drawTime, eachDaysData); }
   if (flagDraw.isDrawMoon) { drawMoon(svg, observer, drawTime); }
   // if (flagDraw.isDrawMercury) { isDrawMercury(o, flagDrawTime); }
   // if (flagDraw.isDrawVenus) { isDrawVenus(o, flagDrawTime); }
