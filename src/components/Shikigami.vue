@@ -145,6 +145,13 @@ const drawSun = (observer: observerType,
   for (let dateIndex = 1; dateIndex <= rotateDays; dateIndex++) {
     const suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
 
+    // 真昼
+    const noonSun = createSunbyDt(suntime.middleDt(drawTime), observer.timezone);
+    // 地球玉の位置
+    earthBall[dateIndex] = { suntimeDt: suntime.middleDt(drawTime).toLocaleString(), sunR: noonSun.r, sunY: noonSun.y };
+    // 通日ラベル（001～365,366）
+    sunNumber[dateIndex] = { suntimeDt: suntime.middleDt(drawTime).toLocaleString(), sunY: noonSun.y, };
+
     // 日付線
     const midnightSun = createSunbyDt(suntime.startDt(drawTime), observer.timezone); // 真夜中
     sunDateLine[dateIndex] = { suntimeDt: suntime.startDt(drawTime).toLocaleString(), sunR: midnightSun.r, sunY: midnightSun.y };
@@ -155,28 +162,23 @@ const drawSun = (observer: observerType,
     const sunset = createSunbyDt(suntime.sunsetDt, observer.timezone); // 日の入
     sunsetLine[dateIndex] = { sunsetDt: suntime.sunsetDt, sunsetR: sunset.r, sunsetY: sunset.y };
 
-    // 真昼
-    const noonSun = createSunbyDt(suntime.middleDt(drawTime), observer.timezone);
-    // 地球玉の位置
-    earthBall[dateIndex] = { suntimeDt: suntime.middleDt(drawTime).toLocaleString(), sunR: noonSun.r, sunY: noonSun.y };
-    // 通日ラベル（001～365,366）
-    sunNumber[dateIndex] = { suntimeDt: suntime.middleDt(drawTime).toLocaleString(), sunY: noonSun.y, };
 
     drawDt.setDate(drawDt.getDate() + 1); // 次の日付
   }
 
   // ここから地球SVG生成
   svg.groupId(`地球`);
-  // 地球玉を描画
-  drawSvgEarthBalls(svg, earthBall, rotateDays, svgSize, strokeColor);
-  // 通日ラベルを描画
-  drawSvgDateLabels(svg, sunNumber, rotateDays, svgDaysR);
-  // 地球移動線を描画
-  drawSvgEarthOrbits(svg, earthBall, rotateDays,);
   // 地球近点軌道を描画
   drawSvgEarthPerigee(svg, svgInR);
   // 地球遠点軌道を描画
   drawSvgEarthApogee(svg, svgOutR);
+
+  // 地球玉を描画
+  drawSvgEarthBalls(svg, earthBall, rotateDays, svgSize, strokeColor);
+  // 地球移動線を描画
+  drawSvgEarthOrbits(svg, earthBall, rotateDays,);
+  // 通日ラベルを描画
+  drawSvgDateLabels(svg, sunNumber, rotateDays, svgDaysR);
 
   // 日付線を描画
   drawSvgDateLines(svg, sunDateLine, rotateDays, svgLineR, strokeColor);
