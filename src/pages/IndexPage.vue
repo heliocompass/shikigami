@@ -53,7 +53,7 @@ const flagDraw = ref({
 })
 
 /** 描画基準時刻 */
-const drawTime = ref<timeBase>('noon'); // noon: 正午／正子,  central: 南中／北中
+const drawTime = ref<timeBase>('clock'); // clock: 正午／正子,  sun: 南中／北中
 
 /** 現在日を設定する */
 const setCurrentDate = () => {
@@ -222,8 +222,8 @@ watch([year, month, day, name, longitude, latitude, timezone, flagDraw, daysData
         </p>
         <p>
           <label>描画基準時刻</label>
-          <input type="radio" name="drawTime" value="noon" v-model="drawTime"><label>正午／正子</label>
-          <input type="radio" name="drawTime" value="central" v-model="drawTime"><label>南中／北中</label>
+          <input type="radio" name="drawTime" value="clock" v-model="drawTime"><label>正午／正子</label>
+          <input type="radio" name="drawTime" value="sun" v-model="drawTime"><label>南中／北中</label>
         </p>
         <p>
           <input type="button" onclick="downloadSVG();" value="SVGデータをダウンロードする" />

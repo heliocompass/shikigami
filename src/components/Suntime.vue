@@ -26,7 +26,7 @@ export type SuntimeType = {
   startDt: (timeBase: timeBase) => Date;
   middleDt: (timeBase: timeBase) => Date;
 }
-export type timeBase = 'noon' | 'central';
+export type timeBase = 'clock' | 'sun';
 
 export class SuntimeClass {
   initDt: Date; // 正子 00:00:00
@@ -43,6 +43,13 @@ export class SuntimeClass {
   northMjd: number;
   southMjd: number;
 
+  /**
+   * 太陽に関する各時刻を出力
+   * @param dt 日時
+   * @param longitude 経度
+   * @param latitude 緯度
+   * @param timezone タイムゾーン
+   */
   constructor(dt: Date, longitude: number, latitude: number, timezone: number) {
     let sunrise0Mjd: number, sunset0Mjd: number;
     this.initDt = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0);
@@ -121,17 +128,18 @@ export class SuntimeClass {
    * @param timeBase 時刻基準 
    * @return 正子 or 北中時刻
    */
-  startDt = (timeBase: timeBase) => {
-    return timeBase === 'noon' ? this.initDt : this.northDt;
+  startDt = (timeBase: timeBase): Date => {
+    return timeBase === 'clock' ? this.initDt : this.northDt;
   }
   /**
    * 昼時刻
    * @param timeBase 時刻基準 
    * @return 正午 or 南中時刻
    */
-  middleDt = (timeBase: timeBase) => {
-    return timeBase === 'noon' ? this.noonDt : this.southDt;
+  middleDt = (timeBase: timeBase): Date => {
+    return timeBase === 'clock' ? this.noonDt : this.southDt;
   }
+
 }
 let defaultObject = {};
 export default defaultObject;
