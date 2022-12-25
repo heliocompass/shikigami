@@ -8,6 +8,7 @@ import type { SuntimeType, timeBase } from './Suntime.vue'
 import { planets } from './Planet.vue'
 import type { Star, Satellite } from './Planet.vue'
 import { drawSun } from './svg/SvgSun.vue'
+import { drawMoon } from './svg/SvgMoon.vue'
 const { Sun, Moon } = planets()
 
 
@@ -83,7 +84,7 @@ export const shikigami = (observer: observerType, flagDraw: {
 
   // 惑星描画
   if (flagDraw.isDrawEarth) { drawSun(svg, observer, flagSunrise, flagSunset, flagDay, flagNight, drawTime, eachDaysData); }
-  if (flagDraw.isDrawMoon) { isDrawMoon(observer, flagDrawTime); }
+  if (flagDraw.isDrawMoon) { drawMoon(svg, observer, drawTime); }
   // if (flagDraw.isDrawMercury) { isDrawMercury(o, flagDrawTime); }
   // if (flagDraw.isDrawVenus) { isDrawVenus(o, flagDrawTime); }
   // if (flagDraw.isDrawMars) { isDrawMars(o, flagDrawTime); }
@@ -105,130 +106,6 @@ export const shikigami = (observer: observerType, flagDraw: {
   svgImage.innerHTML = svg.string;
 }
 
-
-
-/** 月 */
-const isDrawMoon = (observer: observerType, flagDrawTime: boolean) => {
-  const svgSmallSize = 0.4;
-  const svgBigSize = 2.601;
-  const strokeColor = '#231815';
-  const fullmoonColor = '#FCC800', newmoonColor = '#3e3a39';
-  let startDt: Date, endDt: Date, rotateHours: number;
-  let drawDt: Date;
-  let suntime: SuntimeType;
-  let mjd: number, t: number;
-  let sun: Star, moon: Satellite;
-  let moonBall: { dtString: string, sunR: number, angleCos: number, sunY: number }[] = [];
-  let fullmoonBall: { dtString: string, sunR: number, angleCos: number, sunY: number }[] = [];
-  let newmoonBall: { dtString: string, sunR: number, angleCos: number, sunY: number }[] = [];
-  let angleCos: number;
-  let pre1sun: Star, pre1moon: Satellite, pre1Dt: Date, pre1Cos: number, pre1R: number, pre1Y: number, pre2Cos: number;
-  let dateIndex: number;
-
-  // 1周の描画数を決める（日数×6時間毎）
-  startDt = new Date(observer.initDt);
-  endDt = new Date(observer.initDt);
-  endDt.setFullYear(endDt.getFullYear() + 1);
-  rotateHours = (endDt.getTime() - startDt.getTime()) / (1000 * 60 * 60) / 6;
-
-  // 最初の夜起点要素
-  suntime = new SuntimeClass(observer.initDt, observer.longitude, observer.latitude, observer.timezone);
-  // 正子にするか北中にするか選ぶ
-  drawDt = new Date(flagDrawTime ? suntime.initDt : suntime.northDt);
-
-  // 月波
-  mjd = AstroClass.mjd(drawDt, observer.timezone);
-  t = AstroClass.t(mjd);
-  sun = new Sun(t);
-  moon = new Moon(t);
-  angleCos = -Math.cos((moon.y - sun.y) * RAD);
-  moonBall[1] = { dtString: drawDt.toLocaleString(), sunR: sun.r, angleCos: angleCos, sunY: sun.y };
-
-  // 1点前の位置を取得
-  pre1Dt = new Date(drawDt);
-  pre1Dt.setHours(pre1Dt.getHours() - 6);
-  mjd = AstroClass.mjd(pre1Dt, observer.timezone);
-  t = AstroClass.t(mjd);
-  pre1sun = new Sun(t);
-  pre1moon = new Moon(t);
-  pre1Cos = -Math.cos((pre1moon.y - pre1sun.y) * RAD);
-
-  // 1点前と2点前の位置を更新
-  pre2Cos = pre1Cos;
-  pre1Dt = new Date(drawDt);
-  pre1R = sun.r;
-  pre1Cos = angleCos;
-  pre1Y = sun.y;
-
-  // 最終までの夜起点要素ループ
-  // 開始点から6時間毎なのでdrawDtでインクリメントする。suntimeは不要
-  for (dateIndex = 2; dateIndex <= rotateHours; dateIndex++) {
-    drawDt.setHours(drawDt.getHours() + 6);
-
-    // 月玉
-    mjd = AstroClass.mjd(drawDt, observer.timezone);
-    t = AstroClass.t(mjd);
-    sun = new Sun(t);
-    moon = new Moon(t);
-    angleCos = -Math.cos((moon.y - sun.y) * RAD);
-    moonBall[dateIndex] = { dtString: drawDt.toLocaleString(), sunR: sun.r, angleCos: angleCos, sunY: sun.y };
-
-    // 2点前の離角余弦＜1点前の離角余弦＞現在の離角余弦（山）なら1点前を満月とする
-    if (pre2Cos < pre1Cos && pre1Cos > angleCos) {
-      // 要素数があらかじめ決められないのでPushで格納
-      fullmoonBall.push({ dtString: pre1Dt.toLocaleString(), sunR: pre1R, angleCos: pre1Cos, sunY: pre1Y });
-    }
-
-    // 2点前の離角余弦＞1点前の離角余弦＜現在の離角余弦（谷）なら1点前を新月とする
-    if (pre2Cos > pre1Cos && pre1Cos < angleCos) {
-      // 要素数があらかじめ決められないのでPushで格納
-      newmoonBall.push({ dtString: pre1Dt.toLocaleString(), sunR: pre1R, angleCos: pre1Cos, sunY: pre1Y });
-    }
-
-    // 1点前と2点前の位置を更新
-    pre2Cos = pre1Cos;
-    pre1Dt = new Date(drawDt);
-    pre1R = sun.r;
-    pre1Cos = angleCos;
-    pre1Y = sun.y;
-  }
-
-  // ここから月SVG生成
-  svg.groupId(`月`);
-
-  svg.groupId(`月波`);
-  // 1日目だけ描画色を変えるのでループ分け
-  svg.groupId(`月波 ${moonBall[1].dtString}`);
-  svg.circle(moonBall[1].sunR * SVG_AUR * (1 + moonBall[1].angleCos / 20), moonBall[1].sunY, svgSmallSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
-  svg.groupFooter();
-
-  for (dateIndex = 2; dateIndex <= rotateHours; dateIndex++) {
-    svg.groupId(`月波 ${moonBall[dateIndex].dtString}`);
-    svg.circle(moonBall[dateIndex].sunR * SVG_AUR * (1 + moonBall[dateIndex].angleCos / 20), moonBall[dateIndex].sunY, svgSmallSize, SVG_LINE_WIDTH, strokeColor, `none`);
-    svg.groupFooter();
-  }
-  svg.groupFooter();
-
-  svg.groupId(`満月玉`);
-  // 要素数がわからないので0始まりの要素数でループ
-  for (dateIndex = 0; dateIndex <= fullmoonBall.length - 1; dateIndex++) {
-    svg.groupId(`満月玉 ${fullmoonBall[dateIndex].dtString}`);
-    svg.circle(fullmoonBall[dateIndex].sunR * SVG_AUR * (1 + fullmoonBall[dateIndex].angleCos / 20), fullmoonBall[dateIndex].sunY, svgBigSize, SVG_LINE_WIDTH, strokeColor, fullmoonColor);
-    svg.groupFooter();
-  }
-  svg.groupFooter();
-
-  svg.groupId(`新月玉`);
-  // 要素数がわからないので0始まりの要素数でループ
-  for (dateIndex = 0; dateIndex <= newmoonBall.length - 1; dateIndex++) {
-    svg.groupId(`新月玉 ${newmoonBall[dateIndex].dtString}`);
-    svg.circle(newmoonBall[dateIndex].sunR * SVG_AUR * (1 + newmoonBall[dateIndex].angleCos / 20), newmoonBall[dateIndex].sunY, svgBigSize, SVG_LINE_WIDTH, strokeColor, newmoonColor);
-    svg.groupFooter();
-  }
-  svg.groupFooter();
-
-  svg.groupFooter();
-}
 let defaultObject = {};
 export default defaultObject;
 </script>
