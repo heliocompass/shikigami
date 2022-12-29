@@ -7,9 +7,9 @@ import { SuntimeClass } from './Suntime.vue'
 import type { SuntimeType, timeBase } from './Suntime.vue'
 import { planets } from './Planet.vue'
 import type { Star, Satellite } from './Planet.vue'
-import { drawEarth } from './svg/SvgSun.vue'
-import { drawMoon } from './svg/SvgMoon.vue'
-import { drawGraph } from './svg/SvgGraph.vue'
+import { drawEarth } from './shikigami/ShikigamiSun.vue'
+import { drawMoon } from './shikigami/ShikigamiMoon.vue'
+import { drawGraph } from './shikigami/ShikigamiGraph.vue'
 const { Sun, Moon } = planets()
 
 
