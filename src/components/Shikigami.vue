@@ -10,7 +10,7 @@ import type { Star, Satellite } from './Planet.vue'
 import { drawEarth } from './shikigami/ShikigamiSun.vue'
 import { drawMoon } from './shikigami/ShikigamiMoon.vue'
 import { drawGraph } from './shikigami/ShikigamiGraph.vue'
-const { Sun, Moon, Mercury } = planets()
+const { Sun, Moon, Mercury, Venus, Mars } = planets()
 
 
 // 定数
@@ -88,8 +88,8 @@ export const shikigami = (observer: observerType, flagDraw: {
   if (flagDraw.isDrawEarth) { drawGraph(svg, observer, drawTime, eachDaysData); }
   if (flagDraw.isDrawMoon) { drawMoon(svg, observer, drawTime); }
   if (flagDraw.isDrawMercury) { drawMercury(svg, observer, flagDrawTime); }
-  // if (flagDraw.isDrawVenus) { isDrawVenus(o, flagDrawTime); }
-  // if (flagDraw.isDrawMars) { isDrawMars(o, flagDrawTime); }
+  if (flagDraw.isDrawVenus) { drawVenus(svg, observer, flagDrawTime); }
+  if (flagDraw.isDrawMars) { drawMars(svg, observer, flagDrawTime); }
   // if (flagDraw.isDrawJupiter) { isDrawJupiter(o, flagDrawTime); }
   // if (flagDraw.isDrawSaturn) { isDrawSaturn(o, flagDrawTime); }
   // if (flagDraw.isDrawUranus) { isDrawUranus(o, flagDrawTime); }
@@ -108,7 +108,7 @@ export const shikigami = (observer: observerType, flagDraw: {
   svgImage.innerHTML = svg.string;
 }
 
-type MercuryPositions = {
+type PlanetPositions = {
   datetimeString: string,
   r: number,
   y: number,
@@ -124,7 +124,7 @@ function drawMercury(svg: svgType, observer: observerType, flagDrawTime: boolean
   let suntime;
   let mjd, t;
   let mercury;
-  let mercuryBall: MercuryPositions = [];
+  let mercuryBall: PlanetPositions = [];
   let compassY;
   let d;
 
@@ -213,6 +213,213 @@ function drawMercury(svg: svgType, observer: observerType, flagDrawTime: boolean
   svg.circle(0, 0, svgInR, SVG_LINE_WIDTH, RED_COLOR, `none`);
   svg.groupFooter();
   svg.groupId(`水星遠点軌道`);
+  svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
+  svg.groupFooter();
+
+  svg.groupFooter();
+}
+
+// 金星
+function drawVenus(svg: svgType, observer: observerType, flagDrawTime: boolean) {
+  const svgInR = 304.611, svgOutR = 308.7921;
+  const svgSize = 1.72;
+  const strokeColor = '#231815';
+  const rotateDays = 225;
+  let drawDt;
+  let suntime;
+  let mjd, t;
+  let venus;
+  let venusBall: PlanetPositions = [];
+  let compassY
+  let d;
+
+  // 最初の要素
+  drawDt = new Date(observer.initDt);
+  suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+  } else {
+    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+  }
+  t = AstroClass.t(mjd);
+  venus = new Venus(t);
+
+  // 金星玉
+  compassY = venus.y + 180;
+  if (compassY >= 360) {
+    compassY -= 360;
+  }
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    venusBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: venus.r, y: compassY };
+  } else {
+    venusBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: venus.r, y: compassY };
+  }
+
+  // 最終までの要素ループ
+  for (d = 2; d <= rotateDays; d++) {
+    drawDt.setDate(drawDt.getDate() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    venus = new Venus(t);
+
+    // 金星玉
+    compassY = venus.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      venusBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: venus.r, y: compassY };
+    } else {
+      venusBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: venus.r, y: compassY };
+    }
+  }
+
+  // ここから金星SVG作成
+  svg.groupId(`金星`);
+
+  svg.groupId(`金星玉`);
+  // 最初だけ描画色を変えるのでループ分け
+  svg.groupId(`金星玉 ${venusBall[1].datetimeString}`);
+  svg.circle(SVG_AUR * venusBall[1].r, venusBall[1].y, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
+  svg.groupFooter();
+
+  for (d = 2; d <= rotateDays; d++) {
+    svg.groupId(`金星玉 ${venusBall[d].datetimeString}`);
+    svg.circle(SVG_AUR * venusBall[d].r, venusBall[d].y, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+
+  svg.groupId(`金星移動線`);
+  for (d = 2; d <= rotateDays; d++) {
+    svg.groupId(`金星移動線 ${venusBall[d].datetimeString}`);
+    svg.line(SVG_AUR * venusBall[d - 1].r, venusBall[d - 1].y, SVG_AUR * venusBall[d].r, venusBall[d].y, SVG_LINE_WIDTH, BLACK_COLOR);
+    svg.groupFooter();
+  }
+  svg.groupId(`金星移動線 閉じる`);
+  svg.line(SVG_AUR * venusBall[rotateDays].r, venusBall[rotateDays].y, SVG_AUR * venusBall[1].r, venusBall[1].y, SVG_LINE_WIDTH, BLACK_COLOR);
+  svg.groupFooter();
+
+  svg.groupFooter();
+
+  svg.groupId(`金星近点軌道`);
+  svg.circle(0, 0, svgInR, SVG_LINE_WIDTH, RED_COLOR, `none`);
+  svg.groupFooter();
+  svg.groupId(`金星遠点軌道`);
+  svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
+  svg.groupFooter();
+
+  svg.groupFooter();
+}
+
+
+
+// 火星
+function drawMars(svg: svgType, observer: observerType, flagDrawTime: boolean) {
+  const svgInR = 585.71316, svgOutR = 706.40593;
+  const svgSize = 0.96;
+  const strokeColor = '#333333';
+  const rotateDays = 687;
+  let drawDt;
+  let suntime;
+  let mjd, t;
+  let mars;
+  let marsBall: PlanetPositions = [];
+  let compassY;
+  let d;
+
+  // 最初の要素
+  drawDt = new Date(observer.initDt);
+  suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+  } else {
+    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+  }
+  t = AstroClass.t(mjd);
+  mars = new Mars(t);
+
+  // 火星玉
+  compassY = mars.y + 180;
+  if (compassY >= 360) {
+    compassY -= 360;
+  }
+
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    marsBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: mars.r, y: compassY };
+  } else {
+    marsBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: mars.r, y: compassY };
+  }
+
+  // 最終までの要素ループ
+  for (d = 2; d <= rotateDays; d++) {
+    drawDt.setDate(drawDt.getDate() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    mars = new Mars(t);
+
+    // 火星玉
+    compassY = mars.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      marsBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: mars.r, y: compassY };
+    } else {
+      marsBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: mars.r, y: compassY };
+    }
+  }
+
+  // ここから火星SVG作成
+  svg.groupId(`火星`);
+
+  svg.groupId(`火星玉`);
+  // 最初だけ描画色を変えるのでループ分け
+  svg.groupId(`火星玉 ${marsBall[1].datetimeString}`);
+  svg.circle(SVG_AUR * marsBall[1].r, marsBall[1].y, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
+  svg.groupFooter();
+
+  for (d = 2; d <= rotateDays; d++) {
+    svg.groupId(`火星玉 ${marsBall[d].datetimeString}`);
+    svg.circle(SVG_AUR * marsBall[d].r, marsBall[d].y, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+
+  svg.groupId(`火星移動線`);
+  for (d = 2; d <= rotateDays; d++) {
+    svg.groupId(`火星移動線 ${marsBall[d].datetimeString}`);
+    svg.line(SVG_AUR * marsBall[d - 1].r, marsBall[d - 1].y, SVG_AUR * marsBall[d].r, marsBall[d].y, SVG_LINE_WIDTH, BLACK_COLOR);
+    svg.groupFooter();
+  }
+  svg.groupId(`火星移動線 閉じる`);
+  svg.line(SVG_AUR * marsBall[rotateDays].r, marsBall[rotateDays].y, SVG_AUR * marsBall[1].r, marsBall[1].y, SVG_LINE_WIDTH, BLACK_COLOR);
+  svg.groupFooter();
+
+  svg.groupFooter();
+
+  svg.groupId(`火星近点軌道`);
+  svg.circle(0, 0, svgInR, SVG_LINE_WIDTH, RED_COLOR, `none`);
+  svg.groupFooter();
+  svg.groupId(`火星遠点軌道`);
   svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
   svg.groupFooter();
 
