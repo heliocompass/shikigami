@@ -89,14 +89,14 @@ export const shikigami = (observer: observerType, flagDraw: {
   if (flagDraw.isDrawEarth) { drawEarth(svg, observer, flagSunrise, flagSunset, flagDay, flagNight, drawTime,); }
   if (flagDraw.isDrawEarth) { drawGraph(svg, observer, drawTime, eachDaysData); }
   if (flagDraw.isDrawMoon) { drawMoon(svg, observer, drawTime); }
-  if (flagDraw.isDrawMercury) { drawMercury(svg, observer, flagDrawTime); }
-  if (flagDraw.isDrawVenus) { drawVenus(svg, observer, flagDrawTime); }
-  if (flagDraw.isDrawMars) { drawMars(svg, observer, flagDrawTime); }
-  if (flagDraw.isDrawJupiter) { drawJupiter(svg, observer, flagDrawTime); }
-  if (flagDraw.isDrawSaturn) { drawSaturn(svg, observer, flagDrawTime); }
-  if (flagDraw.isDrawUranus) { drawUranus(svg, observer, flagDrawTime); }
-  if (flagDraw.isDrawNeptune) { drawNeptune(svg, observer, flagDrawTime); }
-  if (flagDraw.isDrawPluto) { drawPluto(svg, observer, flagDrawTime); }
+  if (flagDraw.isDrawMercury) { drawMercury(svg, observer, drawTime); } // ng
+  if (flagDraw.isDrawVenus) { drawVenus(svg, observer, drawTime); } // OK
+  if (flagDraw.isDrawMars) { drawMars(svg, observer, drawTime); } // ng
+  if (flagDraw.isDrawJupiter) { drawJupiter(svg, observer, drawTime); } // ok
+  if (flagDraw.isDrawSaturn) { drawSaturn(svg, observer, drawTime); } // ok
+  if (flagDraw.isDrawUranus) { drawUranus(svg, observer, drawTime); } // ok
+  if (flagDraw.isDrawNeptune) { drawNeptune(svg, observer, drawTime); } // ok
+  if (flagDraw.isDrawPluto) { drawPluto(svg, observer, drawTime); } // ng
 
   svg.groupId(`出力情報`);
   svg.tag(`<text transform="translate(100,${SVG_HEIGHT - 210})">描画開始日：${observer.initDt.toLocaleDateString()}</text>`);

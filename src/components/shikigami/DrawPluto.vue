@@ -24,7 +24,11 @@ type PlanetPositions = {
 /**
  * 冥王星描画
  */
-export const drawPluto = (svg: svgType, observer: observerType, flagDrawTime: boolean) => {
+export const drawPluto = (
+  svg: svgType,
+  observer: observerType,
+  drawTime: timeBase,
+) => {
   const svgR = 818.667;
   const svgSize = 0.2832;
   const strokeColor = '#333333';
@@ -40,12 +44,9 @@ export const drawPluto = (svg: svgType, observer: observerType, flagDrawTime: bo
   // 最初の要素
   drawDt = new Date(observer.initDt);
   suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-  } else {
-    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-  }
+
+  mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
   t = AstroClass.t(mjd);
   pluto = new Pluto(t);
 
@@ -55,12 +56,7 @@ export const drawPluto = (svg: svgType, observer: observerType, flagDrawTime: bo
     compassY -= 360;
   }
   // 動径は平均軌道半径で固定
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    plutoBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-  } else {
-    plutoBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-  }
+  plutoBall[1] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
 
   // 最終までの要素ループ	
   // 翌年の1日前から毎年1日前を描画
@@ -69,12 +65,8 @@ export const drawPluto = (svg: svgType, observer: observerType, flagDrawTime: bo
   for (d = 2; d <= rotateYears; d++) {
     drawDt.setFullYear(drawDt.getFullYear() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
+    mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
     t = AstroClass.t(mjd);
     pluto = new Pluto(t);
 
@@ -84,12 +76,8 @@ export const drawPluto = (svg: svgType, observer: observerType, flagDrawTime: bo
       compassY -= 360;
     }
     // 動径は平均軌道半径で固定
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      plutoBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-    } else {
-      plutoBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-    }
+    plutoBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
   }
 
   // ここから冥王星SVG作成
@@ -107,6 +95,7 @@ export const drawPluto = (svg: svgType, observer: observerType, flagDrawTime: bo
     svg.groupFooter();
   }
   svg.groupFooter();
+  svg.groupFooter();
 
   svg.groupId(`冥王星移動線`);
   for (d = 2; d <= rotateYears; d++) {
@@ -116,7 +105,6 @@ export const drawPluto = (svg: svgType, observer: observerType, flagDrawTime: bo
   }
   svg.groupId(`冥王星移動線 閉じる`);
   svg.arc(plutoBall[rotateYears].r, plutoBall[rotateYears].y, plutoBall[1].r, plutoBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
-  svg.groupFooter();
   svg.groupFooter();
 
   svg.groupFooter();

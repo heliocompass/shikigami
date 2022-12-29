@@ -24,7 +24,11 @@ type PlanetPositions = {
 /**
  * 木星描画
  */
-export const drawUranus = (svg: svgType, observer: observerType, flagDrawTime: boolean) => {
+export const drawUranus = (
+  svg: svgType,
+  observer: observerType,
+  drawTime: timeBase
+) => {
   const svgR = 792.667;
   const svgSize = 7.3696;
   const strokeColor = '#333333';
@@ -40,12 +44,7 @@ export const drawUranus = (svg: svgType, observer: observerType, flagDrawTime: b
   // 最初の要素
   drawDt = new Date(observer.initDt);
   suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-  } else {
-    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-  }
+  mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
   t = AstroClass.t(mjd);
   uranus = new Uranus(t);
 
@@ -55,12 +54,8 @@ export const drawUranus = (svg: svgType, observer: observerType, flagDrawTime: b
     compassY -= 360;
   }
   // 動径は平均軌道半径で固定
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    uranusBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-  } else {
-    uranusBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-  }
+  uranusBall[1] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
 
   // 最終までの要素ループ	
   // 翌年の1日前から毎年1日前を描画
@@ -69,12 +64,8 @@ export const drawUranus = (svg: svgType, observer: observerType, flagDrawTime: b
   for (d = 2; d <= rotateYears; d++) {
     drawDt.setFullYear(drawDt.getFullYear() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
+    mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
     t = AstroClass.t(mjd);
     uranus = new Uranus(t);
 
@@ -84,12 +75,8 @@ export const drawUranus = (svg: svgType, observer: observerType, flagDrawTime: b
       compassY -= 360;
     }
     // 動径は平均軌道半径で固定
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      uranusBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-    } else {
-      uranusBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-    }
+    uranusBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
   }
 
   // ここから天王星SVG作成

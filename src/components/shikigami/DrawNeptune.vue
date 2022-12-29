@@ -24,7 +24,11 @@ type PlanetPositions = {
 /**
  * 木星描画
  */
-export const drawNeptune = (svg: svgType, observer: observerType, flagDrawTime: boolean) => {
+export const drawNeptune = (
+  svg: svgType,
+  observer: observerType,
+  drawTime: timeBase
+) => {
   const svgR = 806.001;
   const svgSize = 7.0859;
   const strokeColor = '#333333';
@@ -40,12 +44,9 @@ export const drawNeptune = (svg: svgType, observer: observerType, flagDrawTime: 
   // 最初の要素
   drawDt = new Date(observer.initDt);
   suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-  } else {
-    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-  }
+
+  mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
   t = AstroClass.t(mjd);
   neptune = new Neptune(t);
 
@@ -54,13 +55,9 @@ export const drawNeptune = (svg: svgType, observer: observerType, flagDrawTime: 
   if (compassY >= 360) {
     compassY -= 360;
   }
-  // 動径は平均軌道半径で固定
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    neptuneBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-  } else {
-    neptuneBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-  }
+  // 動径は平均軌道半径で固定 
+  neptuneBall[1] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
 
   // 最終までの要素ループ	
   // 翌年の1日前から毎年1日前を描画
@@ -69,12 +66,9 @@ export const drawNeptune = (svg: svgType, observer: observerType, flagDrawTime: 
   for (d = 2; d <= rotateYears; d++) {
     drawDt.setFullYear(drawDt.getFullYear() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
+
+    mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
     t = AstroClass.t(mjd);
     neptune = new Neptune(t);
 
@@ -84,12 +78,8 @@ export const drawNeptune = (svg: svgType, observer: observerType, flagDrawTime: 
       compassY -= 360;
     }
     // 動径は平均軌道半径で固定
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      neptuneBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-    } else {
-      neptuneBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-    }
+    neptuneBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
   }
 
   // ここから海王星SVG作成
@@ -107,6 +97,7 @@ export const drawNeptune = (svg: svgType, observer: observerType, flagDrawTime: 
     svg.groupFooter();
   }
   svg.groupFooter();
+  svg.groupFooter();
 
   svg.groupId(`海王星移動線`);
   for (d = 2; d <= rotateYears; d++) {
@@ -116,7 +107,6 @@ export const drawNeptune = (svg: svgType, observer: observerType, flagDrawTime: 
   }
   svg.groupId(`海王星移動線 閉じる`);
   svg.arc(neptuneBall[rotateYears].r, neptuneBall[rotateYears].y, neptuneBall[1].r, neptuneBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
-  svg.groupFooter();
   svg.groupFooter();
 
   svg.groupFooter();

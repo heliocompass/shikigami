@@ -27,86 +27,48 @@ type PlanetPositions = {
 export const drawMercury = (
   svg: svgType,
   observer: observerType,
-  flagDrawTime: boolean
+  drawTime: timeBase
 ) => {
-  const svgInR = 130.3795, svgOutR = 197.8724;
-  const svgSize = 0.69;
+  const svgInR = 130.3795;// 水星近点軌道の半径(px)
+  const svgOutR = 197.8724; // 水星遠点軌道の半径(px)
+  const svgSize = 0.69; // 水星玉の大きさ
   const strokeColor = '#231815';
-  const rotateDays = 88;
-  let drawDt;
-  let suntime;
-  let mjd, t;
-  let mercury;
+  const rotateDays = 88; // 水星の公転周期 88 日
   let mercuryBall: PlanetPositions = [];
-  let compassY;
   let d;
 
   // 最初の要素
-  drawDt = new Date(observer.initDt);
-  suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-  } else {
-    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-  }
-  t = AstroClass.t(mjd);
-  mercury = new Mercury(t);
-
-  // 水星玉
-  compassY = mercury.y + 180;
-  if (compassY >= 360) {
-    compassY -= 360;
-  }
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    mercuryBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: mercury.r, y: compassY };
-  } else {
-    mercuryBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: mercury.r, y: compassY };
-  }
+  let drawDt = new Date(observer.initDt);
 
   // 最終までの要素ループ
-  for (d = 2; d <= rotateDays; d++) {
-    drawDt.setDate(drawDt.getDate() + 1);
+  for (d = 1; d <= rotateDays; d++) {
 
-    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
-    t = AstroClass.t(mjd);
-    mercury = new Mercury(t);
-
+    const suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    const mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+    const t = AstroClass.t(mjd);
+    const mercury = new Mercury(t);
     // 水星玉
-    compassY = mercury.y + 180;
+    let compassY = mercury.y + 180;
     if (compassY >= 360) {
       compassY -= 360;
     }
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mercuryBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: mercury.r, y: compassY };
-    } else {
-      mercuryBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: mercury.r, y: compassY };
-    }
+    mercuryBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: mercury.r, y: compassY };
+    drawDt.setDate(drawDt.getDate() + 1);
   }
 
   // ここから水星SVG作成
   svg.groupId(`水星`);
-
-  svg.groupId(`水星玉`);
-  // 最初だけ描画色を変えるのでループ分け
-  svg.groupId(`水星玉 ${mercuryBall[1].datetimeString}`);
-  svg.circle(SVG_AUR * mercuryBall[1].r, mercuryBall[1].y, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
-  svg.groupFooter();
-
-  for (d = 2; d <= rotateDays; d++) {
+  for (d = 1; d <= rotateDays; d++) {
     svg.groupId(`水星玉 ${mercuryBall[d].datetimeString}`);
-    svg.circle(SVG_AUR * mercuryBall[d].r, mercuryBall[d].y, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.circle(
+      SVG_AUR * mercuryBall[d].r,
+      mercuryBall[d].y,
+      svgSize,
+      SVG_LINE_WIDTH,
+      (d === 1) ? GREEN_COLOR : strokeColor, // 最初だけ描画色を変更
+      `none`);
     svg.groupFooter();
   }
-  svg.groupFooter();
 
   svg.groupId(`水星移動線`);
   for (d = 2; d <= rotateDays; d++) {
@@ -114,10 +76,9 @@ export const drawMercury = (
     svg.line(SVG_AUR * mercuryBall[d - 1].r, mercuryBall[d - 1].y, SVG_AUR * mercuryBall[d].r, mercuryBall[d].y, SVG_LINE_WIDTH, BLACK_COLOR);
     svg.groupFooter();
   }
+  svg.groupFooter();
   svg.groupId(`水星移動線 閉じる`);
   svg.line(SVG_AUR * mercuryBall[rotateDays].r, mercuryBall[rotateDays].y, SVG_AUR * mercuryBall[1].r, mercuryBall[1].y, SVG_LINE_WIDTH, BLACK_COLOR);
-  svg.groupFooter();
-
   svg.groupFooter();
 
   svg.groupId(`水星近点軌道`);

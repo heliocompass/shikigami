@@ -24,7 +24,11 @@ type PlanetPositions = {
 /**
  * 木星描画
  */
-export const drawJupiter = (svg: svgType, observer: observerType, flagDrawTime: boolean) => {
+export const drawJupiter = (
+  svg: svgType,
+  observer: observerType,
+  drawTime: timeBase,
+) => {
   const svgR = 730.001;
   const svgSmallSize = 1.0023;
   const svgBigSize = 20.126;
@@ -42,12 +46,9 @@ export const drawJupiter = (svg: svgType, observer: observerType, flagDrawTime: 
   // 最初の要素
   drawDt = new Date(observer.initDt);
   suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-  } else {
-    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-  }
+
+  mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
   t = AstroClass.t(mjd);
   jupiter = new Jupiter(t);
 
@@ -57,12 +58,9 @@ export const drawJupiter = (svg: svgType, observer: observerType, flagDrawTime: 
     compassY -= 360;
   }
   // 動径は平均軌道半径で固定
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    jupiterBigBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-  } else {
-    jupiterBigBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-  }
+
+  jupiterBigBall[1] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
 
   // 1年後までの要素ループ
   // 翌月1日から毎月1日を描画
@@ -71,12 +69,7 @@ export const drawJupiter = (svg: svgType, observer: observerType, flagDrawTime: 
   for (d = 1; d <= rotateMonths; d++) {
     drawDt.setMonth(drawDt.getMonth() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
+    mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
     t = AstroClass.t(mjd);
     jupiter = new Jupiter(t);
 
@@ -87,12 +80,8 @@ export const drawJupiter = (svg: svgType, observer: observerType, flagDrawTime: 
     }
 
     // 動径は平均軌道半径で固定
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      jupiterSmallBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-    } else {
-      jupiterSmallBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-    }
+    jupiterSmallBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
   }
 
   // 1年後から最終までの要素ループ
@@ -103,12 +92,7 @@ export const drawJupiter = (svg: svgType, observer: observerType, flagDrawTime: 
   for (d = 2; d <= rotateYears; d++) {
     drawDt.setFullYear(drawDt.getFullYear() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
+    mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
     t = AstroClass.t(mjd);
     jupiter = new Jupiter(t);
 
@@ -118,12 +102,7 @@ export const drawJupiter = (svg: svgType, observer: observerType, flagDrawTime: 
       compassY -= 360;
     }
     // 動径は平均軌道半径で固定
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      jupiterBigBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-    } else {
-      jupiterBigBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-    }
+    jupiterBigBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
   }
 
   // ここから木星SVG作成

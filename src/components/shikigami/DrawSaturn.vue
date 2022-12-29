@@ -24,7 +24,11 @@ type PlanetPositions = {
 /**
  * 金星描画
  */
-export const drawSaturn = (svg: svgType, observer: observerType, flagDrawTime: boolean) => {
+export const drawSaturn = (
+  svg: svgType,
+  observer: observerType,
+  drawTime: timeBase
+) => {
   const svgR = 766.667;
   const svgSmallSize = 1.0023;
   const svgBigSize = 17.0088;
@@ -42,12 +46,8 @@ export const drawSaturn = (svg: svgType, observer: observerType, flagDrawTime: b
   // 最初の要素
   drawDt = new Date(observer.initDt);
   suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-  } else {
-    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-  }
+  mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
   t = AstroClass.t(mjd);
   saturn = new Saturn(t);
 
@@ -57,12 +57,8 @@ export const drawSaturn = (svg: svgType, observer: observerType, flagDrawTime: b
     compassY -= 360;
   }
   // 動径は平均軌道半径で固定
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    saturnBigBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-  } else {
-    saturnBigBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-  }
+  saturnBigBall[1] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
 
   // 1年後までの要素ループ
   // 翌月1日から毎月1日を描画
@@ -71,12 +67,8 @@ export const drawSaturn = (svg: svgType, observer: observerType, flagDrawTime: b
   for (d = 1; d <= rotateMonths; d++) {
     drawDt.setMonth(drawDt.getMonth() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
+    mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
     t = AstroClass.t(mjd);
     saturn = new Saturn(t);
 
@@ -86,12 +78,8 @@ export const drawSaturn = (svg: svgType, observer: observerType, flagDrawTime: b
       compassY -= 360;
     }
     // 動径は平均軌道半径で固定
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      saturnSmallBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-    } else {
-      saturnSmallBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-    }
+    saturnSmallBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
   }
 
   // 1年後から最終までの要素ループ
@@ -102,12 +90,8 @@ export const drawSaturn = (svg: svgType, observer: observerType, flagDrawTime: b
   for (d = 2; d <= rotateYears; d++) {
     drawDt.setFullYear(drawDt.getFullYear() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
+    mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
     t = AstroClass.t(mjd);
     saturn = new Saturn(t);
 
@@ -117,12 +101,8 @@ export const drawSaturn = (svg: svgType, observer: observerType, flagDrawTime: b
       compassY -= 360;
     }
     // 動径は平均軌道半径で固定
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      saturnBigBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
-    } else {
-      saturnBigBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
-    }
+    saturnBigBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: svgR, y: compassY };
+
   }
 
   // ここから土星SVG作成

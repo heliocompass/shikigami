@@ -24,11 +24,16 @@ type PlanetPositions = {
 /**
  * 金星描画
  */
-export const drawVenus = (svg: svgType, observer: observerType, flagDrawTime: boolean) => {
-  const svgInR = 304.611, svgOutR = 308.7921;
-  const svgSize = 1.72;
+export const drawVenus = (
+  svg: svgType,
+  observer: observerType,
+  drawTime: timeBase
+) => {
+  const svgInR = 304.611; // 金星の近点軌道の半径(px)
+  const svgOutR = 308.7921; // 水星遠点軌道の半径(px)
+  const svgSize = 1.72; // 金星玉の大きさ
   const strokeColor = '#231815';
-  const rotateDays = 225;
+  const rotateDays = 225; // 金星の公転周期 225日
   let drawDt;
   let suntime;
   let mjd, t;
@@ -40,12 +45,7 @@ export const drawVenus = (svg: svgType, observer: observerType, flagDrawTime: bo
   // 最初の要素
   drawDt = new Date(observer.initDt);
   suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-  } else {
-    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-  }
+  mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
   t = AstroClass.t(mjd);
   venus = new Venus(t);
 
@@ -54,23 +54,16 @@ export const drawVenus = (svg: svgType, observer: observerType, flagDrawTime: bo
   if (compassY >= 360) {
     compassY -= 360;
   }
-  // 正午にするか南中にするか選ぶ
-  if (flagDrawTime) {
-    venusBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: venus.r, y: compassY };
-  } else {
-    venusBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: venus.r, y: compassY };
-  }
+  venusBall[1] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: venus.r, y: compassY };
+
 
   // 最終までの要素ループ
   for (d = 2; d <= rotateDays; d++) {
     drawDt.setDate(drawDt.getDate() + 1);
     suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
     // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
-    } else {
-      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
-    }
+    mjd = AstroClass.mjd(suntime.middleDt(drawTime), observer.timezone);
+
     t = AstroClass.t(mjd);
     venus = new Venus(t);
 
@@ -79,12 +72,8 @@ export const drawVenus = (svg: svgType, observer: observerType, flagDrawTime: bo
     if (compassY >= 360) {
       compassY -= 360;
     }
-    // 正午にするか南中にするか選ぶ
-    if (flagDrawTime) {
-      venusBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: venus.r, y: compassY };
-    } else {
-      venusBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: venus.r, y: compassY };
-    }
+    venusBall[d] = { datetimeString: suntime.middleDt(drawTime).toLocaleString(), r: venus.r, y: compassY };
+
   }
 
   // ここから金星SVG作成
