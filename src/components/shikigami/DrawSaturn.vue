@@ -22,7 +22,10 @@ type PlanetPositions = {
 }[];
 
 /**
- * 金星描画
+ * 土星を描画
+ * @param svg 
+ * @param observer 
+ * @param drawTime 
  */
 export const drawSaturn = (
   svg: svgType,

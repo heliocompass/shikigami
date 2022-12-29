@@ -23,6 +23,9 @@ type PlanetPositions = {
 
 /**
  * 冥王星描画
+ * @param svg 
+ * @param observer 
+ * @param drawTime 
  */
 export const drawPluto = (
   svg: svgType,

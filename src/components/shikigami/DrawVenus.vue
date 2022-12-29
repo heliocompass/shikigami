@@ -23,6 +23,9 @@ type PlanetPositions = {
 
 /**
  * 金星描画
+ * @param svg 
+ * @param observer 
+ * @param drawTime 
  */
 export const drawVenus = (
   svg: svgType,

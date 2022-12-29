@@ -31,7 +31,13 @@ const rotate6HoursFromStartDate = (startDate: Date): number => {
   endDt.setFullYear(endDt.getFullYear() + 1);
   return (endDt.getTime() - startDt.getTime()) / (1000 * 60 * 60 * 6);
 }
-/** 月 */
+
+/**
+ * 月を描画
+ * @param svg 
+ * @param observer 
+ * @param drawTime 
+ */
 export const drawMoon = (
   svg: svgType,
   observer: observerType,

@@ -22,7 +22,10 @@ type PlanetPositions = {
 }[];
 
 /**
- * 木星描画
+ * 海王星を描画
+ * @param svg 
+ * @param observer 
+ * @param drawTime 
  */
 export const drawNeptune = (
   svg: svgType,

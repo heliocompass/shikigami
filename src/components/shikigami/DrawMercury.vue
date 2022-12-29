@@ -24,6 +24,9 @@ type PlanetPositions = {
 
 /**
  * 水星描画
+ * @param svg 
+ * @param observer 
+ * @param drawTime 
  */
 export const drawMercury = (
   svg: svgType,
@@ -67,7 +70,13 @@ export const drawMercury = (
   svg.groupFooter();
 }
 
-/** 水星玉をSVG描画 */
+/**
+ * 水星玉をSVG描画
+ * @param svg 
+ * @param mercuryBall 
+ * @param svgSize 
+ * @param strokeColor 
+ */
 const drawSvgMercuryBall = (
   svg: svgType,
   mercuryBall: PlanetPositions,
@@ -88,7 +97,11 @@ const drawSvgMercuryBall = (
   }
 }
 
-/** 水星移動線をSVG描画 */
+/**
+ * 水星移動線をSVG描画
+ * @param svg 
+ * @param mercuryBall 
+ */
 const drawSvgMercuryOrbits = (
   svg: svgType,
   mercuryBall: PlanetPositions,
@@ -106,7 +119,11 @@ const drawSvgMercuryOrbits = (
   svg.groupFooter();
 }
 
-/** 水星近点軌道をSVG描画 */
+/**
+ * 水星近点軌道をSVG描画
+ * @param svg 
+ * @param svgInR 
+ */
 const drawSvgMercuryPerigee = (svg: svgType,
   svgInR: number,
 ) => {
@@ -115,7 +132,11 @@ const drawSvgMercuryPerigee = (svg: svgType,
   svg.groupFooter();
 }
 
-/** 水星遠点軌道をSVG描画 */
+/**
+ * 水星遠点軌道をSVG描画
+ * @param svg 
+ * @param svgOutR 
+ */
 const drawSvgMercuryApogee = (
   svg: svgType,
   svgOutR: number,

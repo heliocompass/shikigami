@@ -22,6 +22,9 @@ type PlanetPositions = {
 
 /**
  * 木星描画
+ * @param svg 
+ * @param observer 
+ * @param drawTime 
  */
 export const drawJupiter = (
   svg: svgType,
@@ -91,7 +94,14 @@ export const drawJupiter = (
   svg.groupFooter();
 }
 
-/** 木星玉・小をSVG描画 */
+/**
+ * 木星玉・小をSVG描画
+ * @param svg 
+ * @param jupiterSmallBall 
+ * @param svgSmallSize 
+ * @param strokeColor 
+ * @param rotateMonths 
+ */
 const drawJupiterSmallBall = (
   svg: svgType,
   jupiterSmallBall: PlanetPositions,
@@ -109,7 +119,14 @@ const drawJupiterSmallBall = (
   svg.groupFooter();
 }
 
-/** 木星玉・大をSVG描画 */
+/**
+ * 木星玉・大をSVG描画
+ * @param svg 
+ * @param jupiterBigBall 
+ * @param svgBigSize 
+ * @param strokeColor 
+ * @param rotateYears 
+ */
 const drawJupiterBigBall = (
   svg: svgType,
   jupiterBigBall: PlanetPositions,
@@ -133,7 +150,15 @@ const drawJupiterBigBall = (
   svg.groupFooter();
 }
 
-/** 木星軌道線をSVG描画 */
+/**
+ * 木星軌道線をSVG描画
+ * @param svg 
+ * @param jupiterBigBall 
+ * @param jupiterSmallBall 
+ * @param svgR 
+ * @param rotateMonths 
+ * @param rotateYears 
+ */
 const drawSvgJupiterOrbits = (
   svg: svgType,
   jupiterBigBall: PlanetPositions,

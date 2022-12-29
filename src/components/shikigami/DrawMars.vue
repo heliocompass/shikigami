@@ -22,6 +22,9 @@ type PlanetPositions = {
 
 /**
  * 火星描画
+ * @param svg 
+ * @param observer 
+ * @param drawTime 
  */
 export const drawMars = (
   svg: svgType,
@@ -66,7 +69,13 @@ export const drawMars = (
   svg.groupFooter();
 }
 
-/** 火星玉をSVG描画 */
+/**
+ * 火星玉をSVG描画
+ * @param svg 
+ * @param marsBall 
+ * @param svgSize 
+ * @param strokeColor 
+ */
 const drawMarsBall = (
   svg: svgType,
   marsBall: PlanetPositions,
@@ -88,7 +97,11 @@ const drawMarsBall = (
   }
 }
 
-/** 火星移動線をSVG描画 */
+/**
+ * 火星移動線をSVG描画
+ * @param svg 
+ * @param marsBall 
+ */
 const drawSvgMarsOrbits = (
   svg: svgType,
   marsBall: PlanetPositions,
@@ -105,8 +118,11 @@ const drawSvgMarsOrbits = (
   svg.groupFooter();
   svg.groupFooter();
 }
-
-/** 火星近点軌道をSVG描画 */
+/**
+ * 火星近点軌道をSVG描画
+ * @param svg 
+ * @param svgInR 
+ */
 const drawSvgMarsPerigee = (
   svg: svgType,
   svgInR: number,
@@ -116,7 +132,11 @@ const drawSvgMarsPerigee = (
   svg.groupFooter();
 }
 
-/** 火星遠点軌道をSVG描画 */
+/**
+ * 火星遠点軌道をSVG描画
+ * @param svg 
+ * @param svgOutR 
+ */
 const drawSvgMarsApogee = (
   svg: svgType,
   svgOutR: number,
