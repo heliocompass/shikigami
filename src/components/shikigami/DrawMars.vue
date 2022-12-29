@@ -14,7 +14,6 @@ const BLACK_COLOR = '#000000';
 const RED_COLOR = '#FF0000';
 const GREEN_COLOR = '#33CC33';
 
-
 type PlanetPositions = {
   datetimeString: string,
   r: number,
@@ -60,7 +59,22 @@ export const drawMars = (
 
   // ここから火星SVG作成
   svg.groupId(`火星`);
-  for (d = 2; d <= rotateDays; d++) {
+  drawMarsBall(svg, marsBall, svgSize, strokeColor); // 火星玉
+  drawSvgMarsOrbits(svg, marsBall); // 火星軌道
+  drawSvgMarsPerigee(svg, svgInR); // 火星近点軌道 
+  drawSvgMarsApogee(svg, svgOutR); // 火星遠点軌道
+  svg.groupFooter();
+}
+
+/** 火星玉をSVG描画 */
+const drawMarsBall = (
+  svg: svgType,
+  marsBall: PlanetPositions,
+  svgSize: number,
+  strokeColor: string,
+) => {
+  const rotateDays = marsBall.length - 1
+  for (let d = 2; d <= rotateDays; d++) {
     svg.groupId(`火星玉 ${marsBall[d].datetimeString}`);
     svg.circle(
       SVG_AUR * marsBall[d].r,
@@ -72,25 +86,43 @@ export const drawMars = (
     );
     svg.groupFooter();
   }
+}
 
+/** 火星移動線をSVG描画 */
+const drawSvgMarsOrbits = (
+  svg: svgType,
+  marsBall: PlanetPositions,
+) => {
+  const rotateDays = marsBall.length - 1
   svg.groupId(`火星移動線`);
-  for (d = 2; d <= rotateDays; d++) {
+  for (let d = 2; d <= rotateDays; d++) {
     svg.groupId(`火星移動線 ${marsBall[d].datetimeString}`);
     svg.line(SVG_AUR * marsBall[d - 1].r, marsBall[d - 1].y, SVG_AUR * marsBall[d].r, marsBall[d].y, SVG_LINE_WIDTH, BLACK_COLOR);
     svg.groupFooter();
   }
   svg.groupId(`火星移動線 閉じる`);
   svg.line(SVG_AUR * marsBall[rotateDays].r, marsBall[rotateDays].y, SVG_AUR * marsBall[1].r, marsBall[1].y, SVG_LINE_WIDTH, BLACK_COLOR);
+  svg.groupFooter();
+  svg.groupFooter();
+}
 
-  svg.groupFooter();
-  svg.groupFooter();
+/** 火星近点軌道をSVG描画 */
+const drawSvgMarsPerigee = (
+  svg: svgType,
+  svgInR: number,
+) => {
   svg.groupId(`火星近点軌道`);
   svg.circle(0, 0, svgInR, SVG_LINE_WIDTH, RED_COLOR, `none`);
   svg.groupFooter();
+}
+
+/** 火星遠点軌道をSVG描画 */
+const drawSvgMarsApogee = (
+  svg: svgType,
+  svgOutR: number,
+) => {
   svg.groupId(`火星遠点軌道`);
   svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
-  svg.groupFooter();
-
   svg.groupFooter();
 }
 

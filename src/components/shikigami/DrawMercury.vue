@@ -4,7 +4,8 @@ import type { svgType } from '../Svg.vue'
 import { AstroClass } from '../Astro.vue'
 import { SuntimeClass } from '../Suntime.vue'
 import type { timeBase } from '../Suntime.vue'
-import { planets } from '../Planet.vue'
+import { Planet, planets } from '../Planet.vue'
+import { sv } from 'date-fns/locale'
 const { Sun, Mercury } = planets()
 
 // 定数
@@ -58,7 +59,23 @@ export const drawMercury = (
 
   // ここから水星SVG作成
   svg.groupId(`水星`);
-  for (d = 1; d <= rotateDays; d++) {
+  drawSvgMercuryBall(svg, mercuryBall, svgSize, strokeColor); // 水星玉
+  drawSvgMercuryOrbits(svg, mercuryBall); // 水星軌道
+  drawSvgMercuryPerigee(svg, svgInR); // 水星近点軌道
+  drawSvgMercuryApogee(svg, svgOutR); // 水星遠点軌道
+
+  svg.groupFooter();
+}
+
+/** 水星玉をSVG描画 */
+const drawSvgMercuryBall = (
+  svg: svgType,
+  mercuryBall: PlanetPositions,
+  svgSize: number,
+  strokeColor: string,
+) => {
+  const rotateDays = mercuryBall.length - 1
+  for (let d = 1; d <= rotateDays; d++) {
     svg.groupId(`水星玉 ${mercuryBall[d].datetimeString}`);
     svg.circle(
       SVG_AUR * mercuryBall[d].r,
@@ -69,25 +86,42 @@ export const drawMercury = (
       `none`);
     svg.groupFooter();
   }
+}
 
+/** 水星移動線をSVG描画 */
+const drawSvgMercuryOrbits = (
+  svg: svgType,
+  mercuryBall: PlanetPositions,
+) => {
+  const rotateDays = mercuryBall.length - 1
   svg.groupId(`水星移動線`);
-  for (d = 2; d <= rotateDays; d++) {
+  for (let d = 2; d <= rotateDays; d++) {
     svg.groupId(`水星移動線 ${mercuryBall[d].datetimeString}`);
     svg.line(SVG_AUR * mercuryBall[d - 1].r, mercuryBall[d - 1].y, SVG_AUR * mercuryBall[d].r, mercuryBall[d].y, SVG_LINE_WIDTH, BLACK_COLOR);
     svg.groupFooter();
   }
-  svg.groupFooter();
   svg.groupId(`水星移動線 閉じる`);
   svg.line(SVG_AUR * mercuryBall[rotateDays].r, mercuryBall[rotateDays].y, SVG_AUR * mercuryBall[1].r, mercuryBall[1].y, SVG_LINE_WIDTH, BLACK_COLOR);
   svg.groupFooter();
+  svg.groupFooter();
+}
 
+/** 水星近点軌道をSVG描画 */
+const drawSvgMercuryPerigee = (svg: svgType,
+  svgInR: number,
+) => {
   svg.groupId(`水星近点軌道`);
   svg.circle(0, 0, svgInR, SVG_LINE_WIDTH, RED_COLOR, `none`);
   svg.groupFooter();
+}
+
+/** 水星遠点軌道をSVG描画 */
+const drawSvgMercuryApogee = (
+  svg: svgType,
+  svgOutR: number,
+) => {
   svg.groupId(`水星遠点軌道`);
   svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
-  svg.groupFooter();
-
   svg.groupFooter();
 }
 
