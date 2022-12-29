@@ -5,12 +5,12 @@ import type { svgType } from './Svg.vue'
 import { AstroClass } from './Astro.vue'
 import { SuntimeClass } from './Suntime.vue'
 import type { SuntimeType, timeBase } from './Suntime.vue'
-import { planets } from './Planet.vue'
+import { Planet, planets } from './Planet.vue'
 import type { Star, Satellite } from './Planet.vue'
 import { drawEarth } from './shikigami/ShikigamiSun.vue'
 import { drawMoon } from './shikigami/ShikigamiMoon.vue'
 import { drawGraph } from './shikigami/ShikigamiGraph.vue'
-const { Sun, Moon, Mercury, Venus, Mars } = planets()
+const { Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto } = planets()
 
 
 // 定数
@@ -90,11 +90,11 @@ export const shikigami = (observer: observerType, flagDraw: {
   if (flagDraw.isDrawMercury) { drawMercury(svg, observer, flagDrawTime); }
   if (flagDraw.isDrawVenus) { drawVenus(svg, observer, flagDrawTime); }
   if (flagDraw.isDrawMars) { drawMars(svg, observer, flagDrawTime); }
-  // if (flagDraw.isDrawJupiter) { isDrawJupiter(o, flagDrawTime); }
-  // if (flagDraw.isDrawSaturn) { isDrawSaturn(o, flagDrawTime); }
-  // if (flagDraw.isDrawUranus) { isDrawUranus(o, flagDrawTime); }
-  // if (flagDraw.isDrawNeptune) { isDrawNeptune(o, flagDrawTime); }
-  // if (flagDraw.isDrawPluto) { isDrawPluto(o, flagDrawTime); }
+  if (flagDraw.isDrawJupiter) { drawJupiter(svg, observer, flagDrawTime); }
+  if (flagDraw.isDrawSaturn) { drawSaturn(svg, observer, flagDrawTime); }
+  if (flagDraw.isDrawUranus) { drawUranus(svg, observer, flagDrawTime); }
+  if (flagDraw.isDrawNeptune) { drawNeptune(svg, observer, flagDrawTime); }
+  if (flagDraw.isDrawPluto) { drawPluto(svg, observer, flagDrawTime); }
 
   svg.groupId(`出力情報`);
   svg.tag(`<text transform="translate(100,${SVG_HEIGHT - 210})">描画開始日：${observer.initDt.toLocaleDateString()}</text>`);
@@ -421,6 +421,610 @@ function drawMars(svg: svgType, observer: observerType, flagDrawTime: boolean) {
   svg.groupFooter();
   svg.groupId(`火星遠点軌道`);
   svg.circle(0, 0, svgOutR, SVG_LINE_WIDTH, RED_COLOR, `none`);
+  svg.groupFooter();
+
+  svg.groupFooter();
+}
+
+// 木星
+function drawJupiter(svg: svgType, observer: observerType, flagDrawTime: boolean) {
+  const svgR = 730.001;
+  const svgSmallSize = 1.0023;
+  const svgBigSize = 20.126;
+  const strokeColor = '#333333';
+  const rotateMonths = 12;
+  const rotateYears = 12;
+  let drawDt;
+  let suntime;
+  let mjd, t;
+  let jupiter;
+  let jupiterSmallBall: PlanetPositions = [], jupiterBigBall: PlanetPositions = [];
+  let compassY;
+  let d;
+
+  // 最初の要素
+  drawDt = new Date(observer.initDt);
+  suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+  } else {
+    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+  }
+  t = AstroClass.t(mjd);
+  jupiter = new Jupiter(t);
+
+  // 木星玉・大
+  compassY = jupiter.y + 180;
+  if (compassY >= 360) {
+    compassY -= 360;
+  }
+  // 動径は平均軌道半径で固定
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    jupiterBigBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+  } else {
+    jupiterBigBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+  }
+
+  // 1年後までの要素ループ
+  // 翌月1日から毎月1日を描画
+  drawDt.setDate(1);
+
+  for (d = 1; d <= rotateMonths; d++) {
+    drawDt.setMonth(drawDt.getMonth() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    jupiter = new Jupiter(t);
+
+    // 木星玉・小
+    compassY = jupiter.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+
+    // 動径は平均軌道半径で固定
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      jupiterSmallBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+    } else {
+      jupiterSmallBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+    }
+  }
+
+  // 1年後から最終までの要素ループ
+  drawDt = new Date(observer.initDt);
+  // 翌年の1日前から毎年1日前を描画
+  drawDt.setDate(drawDt.getDate() - 1);
+
+  for (d = 2; d <= rotateYears; d++) {
+    drawDt.setFullYear(drawDt.getFullYear() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    jupiter = new Jupiter(t);
+
+    // 木星玉・大
+    compassY = jupiter.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+    // 動径は平均軌道半径で固定
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      jupiterBigBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+    } else {
+      jupiterBigBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+    }
+  }
+
+  // ここから木星SVG作成
+  svg.groupId(`木星`);
+
+  svg.groupId(`木星玉`);
+  // 最初だけ描画色を変えるのでループ分け
+  svg.groupId(`木星玉・大 ${jupiterBigBall[1].datetimeString}`);
+  svg.circle(jupiterBigBall[1].r, jupiterBigBall[1].y, svgBigSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
+  svg.groupFooter();
+
+  for (d = 1; d <= rotateMonths; d++) {
+    svg.groupId(`木星玉・小 ${jupiterSmallBall[d].datetimeString}`);
+    svg.circle(jupiterSmallBall[d].r, jupiterSmallBall[d].y, svgSmallSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+
+  for (d = 2; d <= rotateYears; d++) {
+    svg.groupId(`木星玉・大 ${jupiterBigBall[d].datetimeString}`);
+    svg.circle(jupiterBigBall[d].r, jupiterBigBall[d].y, svgBigSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+
+  svg.groupId(`木星軌道線`);
+  svg.groupId(`木星移動線 ${jupiterSmallBall[1].datetimeString}`);
+  svg.arc(jupiterBigBall[1].r, jupiterBigBall[1].y, jupiterSmallBall[1].r, jupiterSmallBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
+
+  for (d = 2; d <= rotateMonths; d++) {
+    svg.groupId(`木星移動線 ${jupiterSmallBall[d].datetimeString}`);
+    svg.arc(jupiterSmallBall[d - 1].r, jupiterSmallBall[d - 1].y, jupiterSmallBall[d].r, jupiterSmallBall[d].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+    svg.groupFooter();
+  }
+
+  svg.groupId(`木星移動線 ${jupiterBigBall[2].datetimeString}`);
+  svg.arc(jupiterSmallBall[rotateMonths].r, jupiterSmallBall[rotateMonths].y, jupiterBigBall[2].r, jupiterBigBall[2].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
+
+  for (d = 3; d <= rotateYears; d++) {
+    svg.groupId(`木星移動線 ${jupiterBigBall[d].datetimeString}`);
+    svg.arc(jupiterBigBall[d - 1].r, jupiterBigBall[d - 1].y, jupiterBigBall[d].r, jupiterBigBall[d].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+    svg.groupFooter();
+  }
+
+  svg.groupId(`木星移動線 閉じる`);
+  svg.arc(jupiterBigBall[rotateYears].r, jupiterBigBall[rotateYears].y, jupiterBigBall[1].r, jupiterBigBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
+  svg.groupFooter();
+
+  svg.groupFooter();
+}
+
+// 土星
+function drawSaturn(svg: svgType, observer: observerType, flagDrawTime: boolean) {
+  const svgR = 766.667;
+  const svgSmallSize = 1.0023;
+  const svgBigSize = 17.0088;
+  const strokeColor = '#333333';
+  const rotateMonths = 12;
+  const rotateYears = 30;
+  let drawDt;
+  let suntime;
+  let mjd, t;
+  let saturn;
+  let saturnSmallBall: PlanetPositions = [], saturnBigBall: PlanetPositions = [];
+  let compassY;
+  let d;
+
+  // 最初の要素
+  drawDt = new Date(observer.initDt);
+  suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+  } else {
+    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+  }
+  t = AstroClass.t(mjd);
+  saturn = new Saturn(t);
+
+  // 土星玉・大
+  compassY = saturn.y + 180;
+  if (compassY >= 360) {
+    compassY -= 360;
+  }
+  // 動径は平均軌道半径で固定
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    saturnBigBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+  } else {
+    saturnBigBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+  }
+
+  // 1年後までの要素ループ
+  // 翌月1日から毎月1日を描画
+  drawDt.setDate(1);
+
+  for (d = 1; d <= rotateMonths; d++) {
+    drawDt.setMonth(drawDt.getMonth() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    saturn = new Saturn(t);
+
+    // 土星玉・小
+    compassY = saturn.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+    // 動径は平均軌道半径で固定
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      saturnSmallBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+    } else {
+      saturnSmallBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+    }
+  }
+
+  // 1年後から最終までの要素ループ
+  drawDt = new Date(observer.initDt);
+  // 翌年の1日前から毎年1日前を描画
+  drawDt.setDate(drawDt.getDate() - 1);
+
+  for (d = 2; d <= rotateYears; d++) {
+    drawDt.setFullYear(drawDt.getFullYear() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    saturn = new Saturn(t);
+
+    // 土星玉・大
+    compassY = saturn.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+    // 動径は平均軌道半径で固定
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      saturnBigBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+    } else {
+      saturnBigBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+    }
+  }
+
+  // ここから土星SVG作成
+  svg.groupId(`土星`);
+
+  svg.groupId(`土星玉`);
+  // 最初だけ描画色を変えるのでループ分け
+  svg.groupId(`土星玉・大 ${saturnBigBall[1].datetimeString}`);
+  svg.circle(saturnBigBall[1].r, saturnBigBall[1].y, svgBigSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
+  svg.groupFooter();
+
+  for (d = 1; d <= rotateMonths; d++) {
+    svg.groupId(`土星玉・小 ${saturnSmallBall[d].datetimeString}`);
+    svg.circle(saturnSmallBall[d].r, saturnSmallBall[d].y, svgSmallSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+
+  for (d = 2; d <= rotateYears; d++) {
+    svg.groupId(`土星玉・大 ${saturnBigBall[d].datetimeString}`);
+    svg.circle(saturnBigBall[d].r, saturnBigBall[d].y, svgBigSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+
+  svg.groupId(`土星軌道線`);
+  svg.groupId(`土星移動線 ${saturnSmallBall[1].datetimeString}`);
+  svg.arc(saturnBigBall[1].r, saturnBigBall[1].y, saturnSmallBall[1].r, saturnSmallBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
+
+  for (d = 2; d <= rotateMonths; d++) {
+    svg.groupId(`土星移動線 ${saturnSmallBall[d].datetimeString}`);
+    svg.arc(saturnSmallBall[d - 1].r, saturnSmallBall[d - 1].y, saturnSmallBall[d].r, saturnSmallBall[d].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+    svg.groupFooter();
+  }
+
+  svg.groupId(`土星移動線 ${saturnBigBall[2].datetimeString}`);
+  svg.arc(saturnSmallBall[rotateMonths].r, saturnSmallBall[rotateMonths].y, saturnBigBall[2].r, saturnBigBall[2].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
+
+  for (d = 3; d <= rotateYears; d++) {
+    svg.groupId(`土星移動線 ${saturnBigBall[d].datetimeString}`);
+    svg.arc(saturnBigBall[d - 1].r, saturnBigBall[d - 1].y, saturnBigBall[d].r, saturnBigBall[d].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+    svg.groupFooter();
+  }
+
+  svg.groupId(`土星移動線 閉じる`);
+  svg.arc(saturnBigBall[rotateYears].r, saturnBigBall[rotateYears].y, saturnBigBall[1].r, saturnBigBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
+  svg.groupFooter();
+
+  svg.groupFooter();
+}
+
+// 天王星
+function drawUranus(svg: svgType, observer: observerType, flagDrawTime: boolean) {
+  const svgR = 792.667;
+  const svgSize = 7.3696;
+  const strokeColor = '#333333';
+  const rotateYears = 86;
+  let drawDt;
+  let suntime;
+  let mjd, t;
+  let uranus;
+  let uranusBall: PlanetPositions = [];
+  let compassY
+  let d;
+
+  // 最初の要素
+  drawDt = new Date(observer.initDt);
+  suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+  } else {
+    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+  }
+  t = AstroClass.t(mjd);
+  uranus = new Uranus(t);
+
+  // 天王星玉
+  compassY = uranus.y + 180;
+  if (compassY >= 360) {
+    compassY -= 360;
+  }
+  // 動径は平均軌道半径で固定
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    uranusBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+  } else {
+    uranusBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+  }
+
+  // 最終までの要素ループ	
+  // 翌年の1日前から毎年1日前を描画
+  drawDt.setDate(drawDt.getDate() - 1);
+
+  for (d = 2; d <= rotateYears; d++) {
+    drawDt.setFullYear(drawDt.getFullYear() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    uranus = new Uranus(t);
+
+    // 天王星玉
+    compassY = uranus.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+    // 動径は平均軌道半径で固定
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      uranusBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+    } else {
+      uranusBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+    }
+  }
+
+  // ここから天王星SVG作成
+  svg.groupId(`天王星`);
+
+  svg.groupId(`天王星玉`);
+  // 最初だけ描画色を変えるのでループ分け
+  svg.groupId(`天王星玉 ${uranusBall[1].datetimeString}`);
+  svg.circle(uranusBall[1].r, uranusBall[1].y, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
+  svg.groupFooter();
+
+  for (d = 2; d <= rotateYears; d++) {
+    svg.groupId(`天王星玉 ${uranusBall[d].datetimeString}`);
+    svg.circle(uranusBall[d].r, uranusBall[d].y, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+
+  svg.groupId(`天王星移動線`);
+  for (d = 2; d <= rotateYears; d++) {
+    svg.groupId(`天王星移動線 ${uranusBall[d].datetimeString}`);
+    svg.arc(uranusBall[d - 1].r, uranusBall[d - 1].y, uranusBall[d].r, uranusBall[d].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+    svg.groupFooter();
+  }
+  svg.groupId(`天王星移動線 閉じる`);
+  svg.arc(uranusBall[rotateYears].r, uranusBall[rotateYears].y, uranusBall[1].r, uranusBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
+  svg.groupFooter();
+
+  svg.groupFooter();
+}
+
+// 海王星
+function drawNeptune(svg: svgType, observer: observerType, flagDrawTime: boolean) {
+  const svgR = 806.001;
+  const svgSize = 7.0859;
+  const strokeColor = '#333333';
+  const rotateYears = 164;
+  let drawDt;
+  let suntime;
+  let mjd, t;
+  let neptune;
+  let neptuneBall: PlanetPositions = [];
+  let compassY;
+  let d;
+
+  // 最初の要素
+  drawDt = new Date(observer.initDt);
+  suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+  } else {
+    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+  }
+  t = AstroClass.t(mjd);
+  neptune = new Neptune(t);
+
+  // 海王星玉
+  compassY = neptune.y + 180;
+  if (compassY >= 360) {
+    compassY -= 360;
+  }
+  // 動径は平均軌道半径で固定
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    neptuneBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+  } else {
+    neptuneBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+  }
+
+  // 最終までの要素ループ	
+  // 翌年の1日前から毎年1日前を描画
+  drawDt.setDate(drawDt.getDate() - 1);
+
+  for (d = 2; d <= rotateYears; d++) {
+    drawDt.setFullYear(drawDt.getFullYear() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    neptune = new Neptune(t);
+
+    // 海王星玉
+    compassY = neptune.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+    // 動径は平均軌道半径で固定
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      neptuneBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+    } else {
+      neptuneBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+    }
+  }
+
+  // ここから海王星SVG作成
+  svg.groupId(`海王星`);
+
+  svg.groupId(`海王星玉`);
+  // 最初だけ描画色を変えるのでループ分け
+  svg.groupId(`海王星玉 ${neptuneBall[1].datetimeString}`);
+  svg.circle(neptuneBall[1].r, neptuneBall[1].y, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
+  svg.groupFooter();
+
+  for (d = 2; d <= rotateYears; d++) {
+    svg.groupId(`海王星玉 ${neptuneBall[d].datetimeString}`);
+    svg.circle(neptuneBall[d].r, neptuneBall[d].y, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+
+  svg.groupId(`海王星移動線`);
+  for (d = 2; d <= rotateYears; d++) {
+    svg.groupId(`海王星移動線 ${neptuneBall[d].datetimeString}`);
+    svg.arc(neptuneBall[d - 1].r, neptuneBall[d - 1].y, neptuneBall[d].r, neptuneBall[d].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+    svg.groupFooter();
+  }
+  svg.groupId(`海王星移動線 閉じる`);
+  svg.arc(neptuneBall[rotateYears].r, neptuneBall[rotateYears].y, neptuneBall[1].r, neptuneBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
+  svg.groupFooter();
+
+  svg.groupFooter();
+}
+
+// 冥王星
+function drawPluto(svg: svgType, observer: observerType, flagDrawTime: boolean) {
+  const svgR = 818.667;
+  const svgSize = 0.2832;
+  const strokeColor = '#333333';
+  const rotateYears = 219;
+  let drawDt;
+  let suntime;
+  let mjd, t;
+  let pluto;
+  let plutoBall: PlanetPositions = [];
+  let compassY;
+  let d;
+
+  // 最初の要素
+  drawDt = new Date(observer.initDt);
+  suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+  } else {
+    mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+  }
+  t = AstroClass.t(mjd);
+  pluto = new Pluto(t);
+
+  // 冥王星玉
+  compassY = pluto.y + 180;
+  if (compassY >= 360) {
+    compassY -= 360;
+  }
+  // 動径は平均軌道半径で固定
+  // 正午にするか南中にするか選ぶ
+  if (flagDrawTime) {
+    plutoBall[1] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+  } else {
+    plutoBall[1] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+  }
+
+  // 最終までの要素ループ	
+  // 翌年の1日前から毎年1日前を描画
+  drawDt.setDate(drawDt.getDate() - 1);
+
+  for (d = 2; d <= rotateYears; d++) {
+    drawDt.setFullYear(drawDt.getFullYear() + 1);
+    suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      mjd = AstroClass.mjd(suntime.noonDt, observer.timezone);
+    } else {
+      mjd = AstroClass.mjd(suntime.southDt, observer.timezone);
+    }
+    t = AstroClass.t(mjd);
+    pluto = new Pluto(t);
+
+    // 冥王星玉
+    compassY = pluto.y + 180;
+    if (compassY >= 360) {
+      compassY -= 360;
+    }
+    // 動径は平均軌道半径で固定
+    // 正午にするか南中にするか選ぶ
+    if (flagDrawTime) {
+      plutoBall[d] = { datetimeString: suntime.noonDt.toLocaleString(), r: svgR, y: compassY };
+    } else {
+      plutoBall[d] = { datetimeString: suntime.southDt.toLocaleString(), r: svgR, y: compassY };
+    }
+  }
+
+  // ここから冥王星SVG作成
+  svg.groupId(`冥王星`);
+
+  svg.groupId(`冥王星玉`);
+  // 最初だけ描画色を変えるのでループ分け
+  svg.groupId(`冥王星玉 ${plutoBall[1].datetimeString}`);
+  svg.circle(plutoBall[1].r, plutoBall[1].y, svgSize, SVG_LINE_WIDTH, GREEN_COLOR, `none`);
+  svg.groupFooter();
+
+  for (d = 2; d <= rotateYears; d++) {
+    svg.groupId(`冥王星玉 ${plutoBall[d].datetimeString}`);
+    svg.circle(plutoBall[d].r, plutoBall[d].y, svgSize, SVG_LINE_WIDTH, strokeColor, `none`);
+    svg.groupFooter();
+  }
+  svg.groupFooter();
+
+  svg.groupId(`冥王星移動線`);
+  for (d = 2; d <= rotateYears; d++) {
+    svg.groupId(`冥王星移動線 ${plutoBall[d].datetimeString}`);
+    svg.arc(plutoBall[d - 1].r, plutoBall[d - 1].y, plutoBall[d].r, plutoBall[d].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+    svg.groupFooter();
+  }
+  svg.groupId(`冥王星移動線 閉じる`);
+  svg.arc(plutoBall[rotateYears].r, plutoBall[rotateYears].y, plutoBall[1].r, plutoBall[1].y, svgR, SVG_LINE_WIDTH, RED_COLOR, 'none');
+  svg.groupFooter();
   svg.groupFooter();
 
   svg.groupFooter();
