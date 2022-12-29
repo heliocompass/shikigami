@@ -2,7 +2,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { getYear, getMonth, getDate } from 'date-fns'
 import { Observer } from '../components/Observer.vue'
-import { shikigami } from '../components/Shikigami.vue'
+import { shikigami, downloadSVG } from '../components/Shikigami.vue'
 import type { timeBase } from '../components/Suntime.vue';
 
 
@@ -19,22 +19,6 @@ const latitude = ref(34.9769); // 緯度
 const timezone = ref(9); // タイムゾーン UTC+9(JST)
 
 // 描画対象
-// const flagDraw = ref([
-//   true, // 0: 地球
-//   true, // 1: 月
-//   true, // 2: 水星
-//   true, // 3: 金星
-//   true, // 4: 火星
-//   true, // 5: 木星
-//   true, // 6: 土星
-//   true, // 7: 天王星
-//   true, // 8: 海王星
-//   true, // 9: 冥王星
-//   false, // 10: 日の出線
-//   false, // 11: 日の入線
-//   false, // 12: 昼エリア
-//   false, // 13: 夜エリア
-// ])
 const flagDraw = ref({
   isDrawEarth: true, // 0: 地球
   isDrawMoon: true, // 1: 月
@@ -70,6 +54,7 @@ const execShikigami = () => {
   const observer = new ObserverClass(checkDt, name.value, longitude.value, latitude.value, timezone.value);
   shikigami(observer, flagDraw.value, daysData.value, drawTime.value);
 }
+
 
 // 初期表示時の動作
 onMounted(() => {
@@ -226,7 +211,7 @@ watch([year, month, day, name, longitude, latitude, timezone, flagDraw, daysData
           <input type="radio" name="drawTime" value="sun" v-model="drawTime"><label>南中／北中</label>
         </p>
         <p>
-          <input type="button" onclick="downloadSVG();" value="SVGデータをダウンロードする" />
+          <input type="button" @click="downloadSVG()" value="SVGデータをダウンロードする" />
         </p>
       </form>
       <input id="upload-file" type="file" @change="onFileChange" />

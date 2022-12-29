@@ -31,10 +31,9 @@ const GREEN_COLOR = '#33CC33';
 
 let svg: svgType;
 
-function downloadSVG() {
+export const downloadSVG = () => {
   svg.download();
 }
-
 
 type DaysData = {
   start: Date
