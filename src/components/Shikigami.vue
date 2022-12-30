@@ -64,7 +64,9 @@ export const shikigami = (observer: observerType, flagDraw: {
   const svgLineR = 583.54395;
   const svgSize = 1.723;
 
-  svg = new SvgClass(observer.initDt, SVG_WIDTH, SVG_HEIGHT, SVG_LEFT, SVG_TOP);
+  svgImage = document.getElementById('svgImage') as HTMLElement;
+
+  svg = new SvgClass(observer.initDt, SVG_WIDTH, SVG_HEIGHT, SVG_LEFT, SVG_TOP, svgImage.offsetWidth);
   // 通日ラベルフォント
   svg.tag(`<style>.days{font-family: DroidSans, Droid Sans; font-size: 3.2px; color: #000000; stroke-width: 0.25; text-anchor: middle;}</style>`);
   svg.groupId(`ガイド基準`);

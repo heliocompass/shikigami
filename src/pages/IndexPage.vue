@@ -110,7 +110,6 @@ watch([year, month, day, name, longitude, latitude, timezone, flagDraw, daysData
 }, { deep: true })
 
 
-
 // 描画用
 const displayMenu = ref(false);
 const timezones = [
@@ -140,6 +139,12 @@ const timezones = [
   { value: 11, label: "UTC-11" },
   { value: 12, label: "UTC-12" },
 ];
+
+// メニュー表示でSHIKIGAMI再実行
+watch([displayMenu], () => {
+  setTimeout(execShikigami, 500); // メニューを開くために時間がかかるので、少し遅らせる
+  console.log('再描画')
+}, { deep: true })
 
 </script>
 
@@ -240,7 +245,13 @@ const timezones = [
             accept="text/csv" density="compact" hide-details variant="filled"></v-file-input></v-col>
         <v-col cols="4"><a href="./csv/assets/data.csv">サンプルcsv</a></v-col>
       </v-row>
-      <div id="svgImage"></div>
+
+      <!-- shikigami -->
+      <v-row>
+        <v-col cols="12">
+          <div id="svgImage"></div>
+        </v-col>
+      </v-row>
       <v-footer>SHIKIGAMI 2.1.3 -地球暦制作支援ツール-</v-footer>
     </v-main>
   </v-layout>

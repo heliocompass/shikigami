@@ -27,13 +27,13 @@ export class SvgClass {
   left: number;
   top: number;
   string: string;
-  constructor(initDt: Date, width: number, height: number, left: number, top: number) {
+  constructor(initDt: Date, width: number, height: number, left: number, top: number, areaWidth: number) {
     this.nameDt = new Date(initDt);
     this.width = width;
     this.height = height;
     this.left = left;
     this.top = top;
-    this.string = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${this.width}" height="${this.height}">\n`;
+    this.string = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${areaWidth}" viewBox="0 0 ${this.width} ${this.height}">\n`;
   }
 
   groupId(id: string) {
