@@ -243,9 +243,8 @@ watch([displayMenu, graphMax], () => {
         </div>
         <div class="ma-2">
           <v-divider></v-divider>
-          <v-subtitle>グラフ上限値</v-subtitle>
-          <v-slider v-model="graphMax" hide-details :max="500" color="primary" thumb-size="0"
-            :thumb-label="true"></v-slider>
+          <v-subtitle>グラフ基準値</v-subtitle>
+          <v-text-field v-model="graphMax" hide-details :min="1"></v-text-field>
         </div>
       </v-navigation-drawer>
       <v-row class="ma-4">
