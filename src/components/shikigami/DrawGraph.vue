@@ -7,13 +7,6 @@ import type { timeBase } from '../Suntime.vue'
 import { planets } from '../Planet.vue'
 const { Sun } = planets()
 
-// 定数
-const SVG_LINE_WIDTH = 0.25;
-const SVG_AUR = 424.0488; // 1AU = 424.0488px
-const BLACK_COLOR = '#000000';
-const RED_COLOR = '#FF0000';
-const GREEN_COLOR = '#33CC33';
-
 const SVG_OUT_R = 431.13545; // 地球遠点軌道の半径(px)
 
 type DaysData = {

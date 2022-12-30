@@ -4,9 +4,8 @@ import type { svgType } from '../Svg.vue'
 import { AstroClass } from '../Astro.vue'
 import { SuntimeClass } from '../Suntime.vue'
 import type { timeBase } from '../Suntime.vue'
-import { Planet, planets } from '../Planet.vue'
-import { sv } from 'date-fns/locale'
-const { Sun, Mercury } = planets()
+import { planets } from '../Planet.vue'
+const { Mercury } = planets()
 
 // 定数
 const SVG_LINE_WIDTH = 0.25;

@@ -4,13 +4,12 @@ import type { svgType } from '../Svg.vue'
 import { AstroClass } from '../Astro.vue'
 import { SuntimeClass } from '../Suntime.vue'
 import type { timeBase } from '../Suntime.vue'
-import { Planet, planets } from '../Planet.vue'
-import { sv } from 'date-fns/locale'
+import { planets } from '../Planet.vue'
+
 const { Jupiter } = planets()
 
 // 定数
 const SVG_LINE_WIDTH = 0.25;
-const SVG_AUR = 424.0488; // 1AU = 424.0488px
 const RED_COLOR = '#FF0000';
 const GREEN_COLOR = '#33CC33';
 
@@ -109,14 +108,11 @@ const drawJupiterSmallBall = (
   strokeColor: string,
   rotateMonths: number,
 ) => {
-  svg.groupId(`木星玉`);
   for (let d = 1; d <= rotateMonths; d++) {
     svg.groupId(`木星玉・小 ${jupiterSmallBall[d].datetimeString}`);
     svg.circle(jupiterSmallBall[d].r, jupiterSmallBall[d].y, svgSmallSize, SVG_LINE_WIDTH, strokeColor, `none`);
     svg.groupFooter();
   }
-
-  svg.groupFooter();
 }
 
 /**
@@ -134,7 +130,6 @@ const drawJupiterBigBall = (
   strokeColor: string,
   rotateYears: number,
 ) => {
-  svg.groupId(`木星玉`);
   for (let d = 1; d <= rotateYears; d++) {
     svg.groupId(`木星玉・大 ${jupiterBigBall[d].datetimeString}`);
     svg.circle(
@@ -147,7 +142,6 @@ const drawJupiterBigBall = (
     );
     svg.groupFooter();
   }
-  svg.groupFooter();
 }
 
 /**
