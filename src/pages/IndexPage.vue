@@ -18,6 +18,8 @@ const longitude = ref(138.3831); // 経度
 const latitude = ref(34.9769); // 緯度
 const timezone = ref(9); // タイムゾーン UTC+9(JST)
 
+const graphMax = ref(400);
+
 // 描画対象
 const flagDraw = ref({
   isDrawEarth: true, // 0: 地球
@@ -52,7 +54,7 @@ const execShikigami = () => {
 
   const checkDt = new Date(year.value, month.value - 1, day.value, 0, 0, 0);  // 設定時刻
   const observer = new ObserverClass(checkDt, name.value, longitude.value, latitude.value, timezone.value);
-  shikigami(observer, flagDraw.value, daysData.value, drawTime.value);
+  shikigami(observer, flagDraw.value, daysData.value, drawTime.value, 0, graphMax.value);
 }
 
 
@@ -141,7 +143,7 @@ const timezones = [
 ];
 
 // メニュー表示でSHIKIGAMI再実行
-watch([displayMenu], () => {
+watch([displayMenu, graphMax], () => {
   setTimeout(execShikigami, 500); // メニューを開くために時間がかかるので、少し遅らせる
   console.log('再描画')
 }, { deep: true })
@@ -238,6 +240,12 @@ watch([displayMenu], () => {
             <v-btn label="正午／正子" value="clock" hide-details density="compact" color="primary">正午／正子</v-btn>
             <v-btn label="南中／北中" value="sun" hide-details density="compact" color="primary">南中／北中</v-btn>
           </v-btn-toggle>
+        </div>
+        <div class="ma-2">
+          <v-divider></v-divider>
+          <v-subtitle>グラフ上限値</v-subtitle>
+          <v-slider v-model="graphMax" hide-details :max="500" color="primary" thumb-size="0"
+            :thumb-label="true"></v-slider>
         </div>
       </v-navigation-drawer>
       <v-row class="ma-4">

@@ -56,7 +56,7 @@ export const shikigami = (observer: observerType, flagDraw: {
   isDrawSunset: boolean,
   isDrawDayArea: boolean,
   isDrawNightArea: boolean,
-}, eachDaysData: DaysData, drawTime: timeBase) => {
+}, eachDaysData: DaysData, drawTime: timeBase, graphMin: number, graphMax: number) => {
   let svgImage;
   let flagSunrise: boolean, flagSunset: boolean;
   let flagDay: boolean, flagNight: boolean;
@@ -89,7 +89,7 @@ export const shikigami = (observer: observerType, flagDraw: {
 
   // 惑星描画
   if (flagDraw.isDrawEarth) { drawEarth(svg, observer, flagSunrise, flagSunset, flagDay, flagNight, drawTime,); }
-  if (flagDraw.isDrawEarth) { drawGraph(svg, observer, drawTime, eachDaysData); }
+  if (flagDraw.isDrawEarth) { drawGraph(svg, observer, drawTime, eachDaysData, graphMin, graphMax); }
   if (flagDraw.isDrawMoon) { drawMoon(svg, observer, drawTime); }
   if (flagDraw.isDrawMercury) { drawMercury(svg, observer, drawTime); } // ng
   if (flagDraw.isDrawVenus) { drawVenus(svg, observer, drawTime); } // OK

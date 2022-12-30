@@ -50,7 +50,9 @@ export const drawGraph = (
   svg: svgType,
   observer: observerType,
   drawTime: timeBase,
-  eachDaysData: DaysData
+  eachDaysData: DaysData,
+  min: number = 0,
+  max: number = 400,
 ) => {
   let noonPositions: EarthPositions = [];
 
@@ -67,7 +69,7 @@ export const drawGraph = (
     drawDt.setDate(drawDt.getDate() + 1); // 次の日付
   }
 
-  drawSvgInputDataGraph(svg, eachDaysData, noonPositions, SVG_OUT_R);
+  drawSvgInputDataGraph(svg, eachDaysData, noonPositions, SVG_OUT_R, min, max);
 }
 
 /**
@@ -82,11 +84,15 @@ const drawSvgInputDataGraph = (
   eachDaysData: DaysData,
   noonPositions: { datetime: Date; sunR: number; sunY: number; }[],
   baseR: number,
+  min: number,
+  max: number,
 ) => {
   svg.groupId(`円環棒グラフ`);
   for (let dateIndex = 0; dateIndex < noonPositions.length; dateIndex++) {
-    const daysValue = eachDaysData.data[dateIndex] ? eachDaysData.data[dateIndex].value : 0
-
+    let daysValue = 0;
+    if (eachDaysData.data[dateIndex]) {
+      daysValue = formatValue(min, max, 400, eachDaysData.data[dateIndex].value);
+    }
     svg.groupId(`円環棒グラフ ${noonPositions[dateIndex].datetime.toLocaleString()}`);
     svg.line(
       baseR,
@@ -99,6 +105,13 @@ const drawSvgInputDataGraph = (
     svg.groupFooter();
   }
   svg.groupFooter();
+}
+
+const formatValue = (min: number, max: number, formatNumber: number, value: number | null): number => {
+  if (value == null) {
+    return 0;
+  }
+  return formatNumber * (value - min) / (max - min)
 }
 
 
