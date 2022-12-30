@@ -110,122 +110,140 @@ watch([year, month, day, name, longitude, latitude, timezone, flagDraw, daysData
 }, { deep: true })
 
 
-// TODO: バリデーション
-// 日時と場所のチェック
-// if (checkYear.match(/[^0-9]+/) || checkYear < 1900 || checkYear > 2100) {
-//   alert('1900-2100の数値を入力してください');
-// }
-// if (checkMonth.match(/[^0-9]+/) || checkMonth < 1 || checkMonth > 12) {
-//   alert('1～12の数値を入力してください');
-//   return;
-// }
-// if (checkDay.match(/[^0-9]+/) || checkDay < 1 || checkDay > 31) {
-//   alert('1～31の数値を入力してください');
-//   return;
-// }
-// if (!checkLongitude.match(/^[+,-]?([1-9]\d*|0)(\.\d+)?$/) || checkLongitude < -180 || checkLongitude > 180) {
-//   alert('-180～180の数値を入力してください');
-//   return;
-// }
-// if (!checkLatitude.match(/^[+,-]?([1-9]\d*|0)(\.\d+)?$/) || checkLatitude < -90.0 || checkLatitude > 90.0) {
-//   alert('-90～90の数値を入力してください');
-//   return;
-// }
-// if (checkDt.getFullYear() != checkYear || checkDt.getMonth() != checkMonth - 1 || checkDt.getDate() != checkDay) {
-//   alert('正しい日付を入力してください');
-//   return;
-// }
+
+// 描画用
+const displayMenu = ref(false);
+const timezones = [
+  { value: 12, label: "UTC+12" },
+  { value: 11, label: "UTC+11" },
+  { value: 10, label: "UTC+10" },
+  { value: 9, label: "UTC+9" },
+  { value: 8, label: "UTC+8" },
+  { value: 7, label: "UTC+7" },
+  { value: 6, label: "UTC+6" },
+  { value: 5, label: "UTC+5" },
+  { value: 4, label: "UTC+4" },
+  { value: 3, label: "UTC+3" },
+  { value: 2, label: "UTC+2" },
+  { value: 1, label: "UTC+1" },
+  { value: 0, label: "UTC+0" },
+  { value: -1, label: "UTC-1" },
+  { value: -2, label: "UTC-2" },
+  { value: -3, label: "UTC-3" },
+  { value: -4, label: "UTC-4" },
+  { value: -5, label: "UTC-5" },
+  { value: -6, label: "UTC-6" },
+  { value: -7, label: "UTC-7" },
+  { value: -8, label: "UTC-8" },
+  { value: -9, label: "UTC-9" },
+  { value: 10, label: "UTC-10" },
+  { value: 11, label: "UTC-11" },
+  { value: 12, label: "UTC-12" },
+];
 
 </script>
 
 <template>
-  <div>
-    <div id="panel">
-      <form name="setting" action="javascript:void(0)">
-        <input type="number" id="year" size="3" min="1900" max="2100" step="1"
-          v-model="year"><label>年(1900-2100)</label>
-        <input type="number" id="month" size="2" min="1" max="12" step="1" v-model="month"><label>月</label>
-        <input type="number" id="day" size="2" min="1" max="31" step="1" v-model="day"><label>日</label>
-        <label>場所</label><input type="text" id="name" size="6" v-model="name">
-        <label>経度</label><input type="number" id="longitude" size="5" min="-180.0000" max="180.0000" step="0.0001"
-          v-model="longitude"><label>度</label>
-        <label>緯度</label><input type="number" id="latitude" size="5" min="-90.0000" max="90.0000" step="0.0001"
-          v-model="latitude"><label>度</label>
-        <label>タイムゾーン</label><select id="timezone" v-model="timezone">
-          <option value=14>UTC+14</option>
-          <option value=13>UTC+13</option>
-          <option value=12.75>UTC+12:45</option>
-          <option value=12>UTC+12</option>
-          <option value=11>UTC+11</option>
-          <option value=10.5>UTC+10:30</option>
-          <option value=10>UTC+10</option>
-          <option value=9.5>UTC+9:30</option>
-          <option value=9>UTC+9 (JST)</option>
-          <option value=8.75>UTC+8:45</option>
-          <option value=8>UTC+8</option>
-          <option value=7>UTC+7</option>
-          <option value=6.5>UTC+6:30</option>
-          <option value=6>UTC+6</option>
-          <option value=5.75>UTC+5:45</option>
-          <option value=5.5>UTC+5:30</option>
-          <option value=5>UTC+5</option>
-          <option value=4.5>UTC+4:30</option>
-          <option value=4>UTC+4</option>
-          <option value=3.5>UTC+3:30</option>
-          <option value=3>UTC+3</option>
-          <option value=2>UTC+2</option>
-          <option value=1>UTC+1</option>
-          <option value=0>UTC</option>
-          <option value=-1>UTC-1</option>
-          <option value=-2>UTC-2</option>
-          <option value=-3>UTC-3</option>
-          <option value=-3.5>UTC-3:30</option>
-          <option value=-4>UTC-4</option>
-          <option value=-5>UTC-5</option>
-          <option value=-6>UTC-6</option>
-          <option value=-7>UTC-7</option>
-          <option value=-8>UTC-8</option>
-          <option value=-9>UTC-9</option>
-        </select>
-        <p>
-          <input type="checkbox" name="flagDraw" value="0" v-model="flagDraw.isDrawEarth"><label>地球(太陽)</label>
-          <input type="checkbox" name="flagDraw" value="1" v-model="flagDraw.isDrawMoon"><label>月</label>
-          <input type="checkbox" name="flagDraw" value="2" v-model="flagDraw.isDrawMercury"><label>水星</label>
-          <input type="checkbox" name="flagDraw" value="3" v-model="flagDraw.isDrawVenus"><label>金星</label>
-          <input type="checkbox" name="flagDraw" value="4" v-model="flagDraw.isDrawMars"><label>火星</label>
-          <input type="checkbox" name="flagDraw" value="5" v-model="flagDraw.isDrawJupiter"><label>木星</label>
-          <input type="checkbox" name="flagDraw" value="6" v-model="flagDraw.isDrawSaturn"><label>土星</label>
-          <input type="checkbox" name="flagDraw" value="7" v-model="flagDraw.isDrawUranus"><label>天王星</label>
-          <input type="checkbox" name="flagDraw" value="8" v-model="flagDraw.isDrawNeptune"><label>海王星</label>
-          <input type="checkbox" name="flagDraw" value="9" v-model="flagDraw.isDrawPluto"><label>冥王星</label>
-        </p>
-        <p>
-          <input type="checkbox" name="flagDraw" value="10" v-model="flagDraw.isDrawSunrise"><label>日の出線</label>
-          <input type="checkbox" name="flagDraw" value="11" v-model="flagDraw.isDrawSunset"><label>日の入り線</label>
-          <input type="checkbox" name="flagDraw" value="12" v-model="flagDraw.isDrawDayArea"><label>昼エリア</label>
-          <input type="checkbox" name="flagDraw" value="13" v-model="flagDraw.isDrawNightArea"><label>夜エリア</label>
-        </p>
-        <p>
-          <label>描画基準時刻</label>
-          <input type="radio" name="drawTime" value="clock" v-model="drawTime"><label>正午／正子</label>
-          <input type="radio" name="drawTime" value="sun" v-model="drawTime"><label>南中／北中</label>
-        </p>
-        <p>
-          <input type="button" @click="downloadSVG()" value="SVGデータをダウンロードする" />
-        </p>
-      </form>
-      <input id="upload-file" type="file" @change="onFileChange" />
-      <a href="./csv/assets/data.csv">サンプルcsv</a>
-      <div id="svgImage"></div>
-      <div id="copyright">
-        <p>
-          SHIKIGAMI 2.1.3 -地球暦制作支援ツール-<br />
-          Copyright(C)2021 Will System Design
-        </p>
-      </div>
-    </div>
+  <v-layout>
+    <v-main>
+      <v-app-bar>
+        <v-app-bar-title>地球歴 Demo</v-app-bar-title>
+        <v-spacer></v-spacer>
+        <v-btn @click="downloadSVG()">ダウンロード</v-btn>
+        <v-btn @click="displayMenu = !displayMenu">設定</v-btn>
+      </v-app-bar>
+      <v-navigation-drawer permanent name="drawer" v-model="displayMenu" location="right">
 
-  </div>
+        <div class="ma-2">
+          <v-divider></v-divider>
+          <v-subtitle>観測日</v-subtitle>
+          <v-row>
+            <v-col>
+              <v-text-field hide-details density="compact" variant="outlined" type="number" min="1900" max="2100"
+                step="1" v-model="year" label="年"></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6"> <v-text-field hide-details density="compact" variant="outlined" v-model="month"
+                type="number" min="1" max="12" step="1" label="月"></v-text-field></v-col>
+            <v-col cols="6"> <v-text-field hide-details density="compact" variant="outlined" v-model="day" type="number"
+                min="1" max="31" step="1" label="日"></v-text-field></v-col>
+          </v-row>
+
+        </div>
+        <div class="ma-2">
+          <v-divider></v-divider>
+          <v-subtitle>観測地点</v-subtitle>
+          <v-row>
+            <v-col>
+              <v-text-field hide-details density="compact" variant="outlined" v-model="name" label="場所"></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6"> <v-text-field hide-details density="compact" variant="outlined" v-model="latitude"
+                type="number" min="-90.0000" max="90.0000" step="0.0001" label="緯度"></v-text-field></v-col>
+            <v-col cols="6"> <v-text-field hide-details density="compact" variant="outlined" v-model="longitude"
+                type="number" min="-90.0000" max="90.0000" step="0.0001" label="経度"></v-text-field></v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-select hide-details density="compact" variant="outlined" v-model="timezone" label="タイムゾーン"
+                :items="timezones" item-value="value" item-title="label"></v-select>
+            </v-col>
+          </v-row>
+        </div>
+        <div class="ma-2">
+          <v-divider></v-divider>
+          <v-subtitle>惑星描画</v-subtitle>
+          <v-switch v-model="flagDraw.isDrawEarth" label="地球（太陽）" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawMoon" label="月" hide-details density="compact" color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawMercury" label="水星" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawVenus" label="金星" hide-details density="compact" color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawMars" label="火星" hide-details density="compact" color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawJupiter" label="木星" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawSaturn" label="土星" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawUranus" label="天王星" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawNeptune" label="海王星" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawPluto" label="冥王星" hide-details density="compact"
+            color="primary"></v-switch>
+        </div>
+
+        <div class="ma-2">
+          <v-divider></v-divider>
+          <v-label>地球詳細描画</v-label>
+          <v-switch v-model="flagDraw.isDrawSunrise" label="日の出線" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawSunset" label="日の入り線" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawDayArea" label="昼エリア" hide-details density="compact"
+            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawNightArea" label="夜エリア" hide-details density="compact"
+            color="primary"></v-switch>
+        </div>
+        <div class="ma-2">
+          <v-divider></v-divider>
+          <v-subtitle>描画基準時刻</v-subtitle>
+          <v-btn-toggle v-model="drawTime" mandatory>
+            <v-btn label="正午／正子" value="clock" hide-details density="compact" color="primary">正午／正子</v-btn>
+            <v-btn label="南中／北中" value="sun" hide-details density="compact" color="primary">南中／北中</v-btn>
+          </v-btn-toggle>
+        </div>
+      </v-navigation-drawer>
+      <v-row class="ma-4">
+        <v-col cols="8"><v-file-input id="upload-file" type="file" @change="onFileChange" label="CSVアップロード"
+            accept="text/csv" density="compact" hide-details variant="filled"></v-file-input></v-col>
+        <v-col cols="4"><a href="./csv/assets/data.csv">サンプルcsv</a></v-col>
+      </v-row>
+      <div id="svgImage"></div>
+      <v-footer>SHIKIGAMI 2.1.3 -地球暦制作支援ツール-</v-footer>
+    </v-main>
+  </v-layout>
 </template>
 
 <style scoped>
