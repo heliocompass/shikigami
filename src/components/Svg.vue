@@ -1,24 +1,45 @@
 <script  lang="ts">
 import { CoordClass } from './Coord.vue'
+/**
+ * SVG画像を生成するための型定義
+ *
+ * @typedef {Object} svgType
+ * @property {Date} nameDt - SVG画像の名前に使われる日付
+ * @property {number} width - SVG画像の幅
+ * @property {number} height - SVG画像の高さ
+ * @property {number} left - SVG画像の左側余白
+ * @property {number} top - SVG画像の上側余白
+ * @property {string} string - SVG画像を表す文字列
+ * @property {Function} download - SVG画像をダウンロードする関数
+ * @property {Function} groupId - SVGのグループのIDを指定する関数
+ * @property {Function} groupFooter - SVGのグループの終了を指定する関数
+ * @property {Function} line - 線を描画する関数
+ * @property {Function} arc - 円弧を描画する関数
+ * @property {Function} circle - 中心が (r, theta) の円を描画する関数
+ * @property {Function} area - 楕円形領域を描画する関数
+ * @property {Function} text - テキストを描画する関数
+ * @property {Function} tag - SVGタグを追加する関数
+ * @property {Function} end - SVG画像の終了を指定する関数
+ */
 export type svgType = {
-  nameDt: Date,
-  width: number,
-  height: number,
-  left: number,
-  top: number,
-  string: string,
+  nameDt: Date;
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  string: string;
 
-  download: () => void
-  groupId: (id: string) => void
-  groupFooter: () => void
-  line: (r1: number, theta1: number, r2: number, theta2: number, lineWidth: number, sColor: string) => void
-  arc: (r1: number, theta1: number, r2: number, theta2: number, R: number, lineWidth: number, sColor: string, fColor: string) => void
-  circle: (r: number, theta: number, size: number, lineWidth: number, sColor: string, fColor: string) => void
-  area: (r1: number, theta1: number, r2: number, theta2: number, R: number, lineWidth: number, sColor: string, fColor: string) => void
-  text: (style: string, r: number, theta: number, rotate: number, text: string) => void
-  tag: (string: string) => void
-  end: () => void,
-}
+  download(): void;
+  groupId(id: string): void;
+  groupFooter(): void;
+  line(r1: number, theta1: number, r2: number, theta2: number, lineWidth: number, sColor: string): void;
+  arc(r1: number, theta1: number, r2: number, theta2: number, R: number, lineWidth: number, sColor: string, fColor: string): void;
+  circle(r: number, theta: number, size: number, lineWidth: number, sColor: string, fColor: string): void;
+  area(r1: number, theta1: number, r2: number, theta2: number, R: number, lineWidth: number, sColor: string, fColor: string): void;
+  text(style: string, r: number, theta: number, rotate: number, text: string): void;
+  tag(string: string): void;
+  end(): void;
+};
 
 export class SvgClass {
   nameDt: Date;

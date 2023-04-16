@@ -28,9 +28,11 @@ const WHITE_COLOR = '#FFFFFF';
 const BLACK_COLOR = '#000000';
 const RED_COLOR = '#FF0000';
 const GREEN_COLOR = '#33CC33';
-
+// SVGインスタンス
 let svg: svgType;
-
+/**
+ * SVGをダウンロードする
+ */
 export const downloadSVG = () => {
   svg.download();
 }
@@ -40,23 +42,38 @@ type DaysData = {
   end: Date
   data: Array<{ date: number, value: number }>
 }
-// SHIKIGAMIメインルーチン
-export const shikigami = (observer: ObserverType, flagDraw: {
-  isDrawEarth: boolean,
-  isDrawMoon: boolean,
-  isDrawMercury: boolean,
-  isDrawVenus: boolean,
-  isDrawMars: boolean,
-  isDrawJupiter: boolean,
-  isDrawSaturn: boolean,
-  isDrawUranus: boolean,
-  isDrawNeptune: boolean,
-  isDrawPluto: boolean,
-  isDrawSunrise: boolean,
-  isDrawSunset: boolean,
-  isDrawDayArea: boolean,
-  isDrawNightArea: boolean,
-}, eachDaysData: DaysData, drawTime: timeBase, graphMin: number, graphMax: number) => {
+/**
+ * SHIKIGAMIメインルーチン
+ * @param observer 観測情報
+ * @param flagDraw 描画フラグ
+ * @param eachDaysData 日々のデータ
+ * @param drawTime 描画基準時刻
+ * @param graphMin グラフ最小値
+ * @param graphMax グラフ最大値
+ */
+export const shikigami = (
+  observer: ObserverType,
+  flagDraw: {
+    isDrawEarth: boolean,
+    isDrawMoon: boolean,
+    isDrawMercury: boolean,
+    isDrawVenus: boolean,
+    isDrawMars: boolean,
+    isDrawJupiter: boolean,
+    isDrawSaturn: boolean,
+    isDrawUranus: boolean,
+    isDrawNeptune: boolean,
+    isDrawPluto: boolean,
+    isDrawSunrise: boolean,
+    isDrawSunset: boolean,
+    isDrawDayArea: boolean,
+    isDrawNightArea: boolean,
+  },
+  eachDaysData: DaysData,
+  drawTime: timeBase,
+  graphMin: number,
+  graphMax: number
+  ) => {
   let svgImage;
   let flagSunrise: boolean, flagSunset: boolean;
   let flagDay: boolean, flagNight: boolean;

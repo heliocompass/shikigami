@@ -1,7 +1,5 @@
 <script lang="ts" >
 
-const RAD = Math.PI / 180;
-
 export type AstroType = {
   nowDt: Date,
   name: string,
@@ -23,8 +21,6 @@ export class AstroClass {
     const year = dt.getFullYear();
     const month = dt.getMonth() + 1;
     const day = dt.getDate();
-    const hour = dt.getHours();
-    const minute = dt.getMinutes();
     const a = Math.trunc((14 - month) / 12);
     const y = year + 4800 - a;
     const m = month + 12 * a - 3;
