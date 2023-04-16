@@ -1,0 +1,81 @@
+/*
+styles.css
+SHIKIGAMI -Help Tool for Helio Compass Drawing-
+Copyright(C)2021 T.Takao@Will System Design All Rights Reserved.
+https://will-system.net/
+*/
+
+@charset "utf-8";
+
+* {
+  font-family: "游ゴシック体", "游ゴシック", "Yu Gothic", "メイリオ", "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+  margin: 0px;
+  padding: 0px;
+}
+
+#panel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 10px;
+}
+
+body {
+  background-color: white;
+}
+
+label {
+  margin-left: 5px;
+  padding-right: 5px;
+  color: black;
+  font-size: 16px;
+}
+
+input {
+  background: rgba(51, 102, 204, 0.1);
+  border: none;
+  color: black;
+  font-size: 18px;
+  text-align: center;
+}
+
+input[type="button"] {
+  margin-left: 5px;
+  margin-top: 15px;
+  padding: 2px 6px 2px 6px;
+  border: 1px solid rgba(51, 102, 204, 1.0);
+  border-radius: 0.3em;
+  background: rgba(51, 102, 204, 0.1);
+  color: black;
+  font-size: 16px;
+
+}
+
+input[type="radio"] {
+  margin: 20px 5px 10px 10px;
+}
+
+input[type="checkbox"] {
+  margin: 20px 5px 10px 10px;
+  border-radius: 0.3em;
+}
+
+select {
+  background: rgba(51, 102, 204, 0.1);
+  color: black;
+  font-size: 16px;
+  text-align: center;
+}
+
+option {
+  color: black;
+  font-size: 16px;
+  text-align: center;
+}
+
+#copyright {
+  margin-top: 50px;
+  margin-left: 5px;
+  color: black;
+  font-size: 15px;
+}
