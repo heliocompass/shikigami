@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { observerType } from '../Observer.vue'
+import type { ObserverType } from '../Observer.vue'
 import type { svgType } from '../Svg.vue'
 import { AstroClass } from '../Astro.vue'
 import { SuntimeClass } from '../Suntime.vue'
@@ -40,7 +40,7 @@ const rotate6HoursFromStartDate = (startDate: Date): number => {
  */
 export const drawMoon = (
   svg: svgType,
-  observer: observerType,
+  observer: ObserverType,
   drawTime: timeBase
 ) => {
   const svgSmallSize = 0.4;

@@ -7,7 +7,7 @@ import type { timeBase } from '../components/Suntime.vue';
 
 
 // 外部ファイル
-const { ObserverClass } = Observer()
+const ObserverClass = Observer
 
 // 各設定値
 const year = ref(2000); // 年
@@ -166,13 +166,13 @@ watch([displayMenu, graphMax], () => {
           <v-subtitle>観測日</v-subtitle>
           <v-row>
             <v-col>
-              <v-text-field hide-details density="compact" variant="outlined" type="number" min="1900" max="2100"
-                step="1" v-model="year" label="年"></v-text-field>
+              <v-text-field hide-details density="compact" variant="outlined" type="number" min="1900" max="2100" step="1"
+                v-model="year" label="年"></v-text-field>
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="6"> <v-text-field hide-details density="compact" variant="outlined" v-model="month"
-                type="number" min="1" max="12" step="1" label="月"></v-text-field></v-col>
+            <v-col cols="6"> <v-text-field hide-details density="compact" variant="outlined" v-model="month" type="number"
+                min="1" max="12" step="1" label="月"></v-text-field></v-col>
             <v-col cols="6"> <v-text-field hide-details density="compact" variant="outlined" v-model="day" type="number"
                 min="1" max="31" step="1" label="日"></v-text-field></v-col>
           </v-row>
@@ -205,20 +205,15 @@ watch([displayMenu, graphMax], () => {
           <v-switch v-model="flagDraw.isDrawEarth" label="地球（太陽）" hide-details density="compact"
             color="primary"></v-switch>
           <v-switch v-model="flagDraw.isDrawMoon" label="月" hide-details density="compact" color="primary"></v-switch>
-          <v-switch v-model="flagDraw.isDrawMercury" label="水星" hide-details density="compact"
-            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawMercury" label="水星" hide-details density="compact" color="primary"></v-switch>
           <v-switch v-model="flagDraw.isDrawVenus" label="金星" hide-details density="compact" color="primary"></v-switch>
           <v-switch v-model="flagDraw.isDrawMars" label="火星" hide-details density="compact" color="primary"></v-switch>
-          <v-switch v-model="flagDraw.isDrawJupiter" label="木星" hide-details density="compact"
-            color="primary"></v-switch>
-          <v-switch v-model="flagDraw.isDrawSaturn" label="土星" hide-details density="compact"
-            color="primary"></v-switch>
-          <v-switch v-model="flagDraw.isDrawUranus" label="天王星" hide-details density="compact"
-            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawJupiter" label="木星" hide-details density="compact" color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawSaturn" label="土星" hide-details density="compact" color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawUranus" label="天王星" hide-details density="compact" color="primary"></v-switch>
           <v-switch v-model="flagDraw.isDrawNeptune" label="海王星" hide-details density="compact"
             color="primary"></v-switch>
-          <v-switch v-model="flagDraw.isDrawPluto" label="冥王星" hide-details density="compact"
-            color="primary"></v-switch>
+          <v-switch v-model="flagDraw.isDrawPluto" label="冥王星" hide-details density="compact" color="primary"></v-switch>
         </div>
 
         <div class="ma-2">
@@ -264,6 +259,4 @@ watch([displayMenu, graphMax], () => {
   </v-layout>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

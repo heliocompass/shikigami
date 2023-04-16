@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { observerType } from '../Observer.vue'
+import type { ObserverType } from '../Observer.vue'
 import type { svgType } from '../Svg.vue'
 import { AstroClass } from '../Astro.vue'
 import { SuntimeClass } from '../Suntime.vue'
@@ -20,7 +20,7 @@ type DaysData = {
   data: Array<{ date: number, value: number }>
 }
 
-const createSunbyDt = (date: Date, timezone: number) => {
+const createSunByDt = (date: Date, timezone: number) => {
   const mjd = AstroClass.mjd(date, timezone);
   const T = AstroClass.t(mjd);
   return new Sun(T);
@@ -56,7 +56,7 @@ type EarthPositions = {
  */
 export const drawEarth = (
   svg: svgType,
-  observer: observerType,
+  observer: ObserverType,
   flagSunrise: boolean,
   flagSunset: boolean,
   flagDay: boolean,
@@ -83,19 +83,19 @@ export const drawEarth = (
     const suntime = new SuntimeClass(drawDt, observer.longitude, observer.latitude, observer.timezone);
 
     // 真昼
-    const noonSun = createSunbyDt(suntime.middleDt(drawTime), observer.timezone);
+    const noonSun = createSunByDt(suntime.middleDt(drawTime), observer.timezone);
     noonPositions[dateIndex] = { datetime: suntime.middleDt(drawTime), sunR: noonSun.r, sunY: noonSun.y };
 
     // 真夜中
-    const midnightSun = createSunbyDt(suntime.startDt(drawTime), observer.timezone);
+    const midnightSun = createSunByDt(suntime.startDt(drawTime), observer.timezone);
     midnightPositions[dateIndex] = { datetime: suntime.startDt(drawTime), sunR: midnightSun.r, sunY: midnightSun.y };
 
     // 日の出線
-    const sunrise = createSunbyDt(suntime.sunriseDt, observer.timezone);
+    const sunrise = createSunByDt(suntime.sunriseDt, observer.timezone);
     sunrisePositions[dateIndex] = { datetime: suntime.sunriseDt, sunR: sunrise.r, sunY: sunrise.y };
 
     // 日の入線
-    const sunset = createSunbyDt(suntime.sunsetDt, observer.timezone);
+    const sunset = createSunByDt(suntime.sunsetDt, observer.timezone);
     sunsetPositions[dateIndex] = { datetime: suntime.sunsetDt, sunR: sunset.r, sunY: sunset.y };
 
     drawDt.setDate(drawDt.getDate() + 1); // 次の日付

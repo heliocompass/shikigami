@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { observerType } from '../Observer.vue'
+import type { ObserverType } from '../Observer.vue'
 import type { svgType } from '../Svg.vue'
 import { AstroClass } from '../Astro.vue'
 import { SuntimeClass } from '../Suntime.vue'
@@ -26,7 +26,7 @@ type PlanetPositions = {
  */
 export const drawUranus = (
   svg: svgType,
-  observer: observerType,
+  observer: ObserverType,
   drawTime: timeBase
 ) => {
   const svgR = 792.667;

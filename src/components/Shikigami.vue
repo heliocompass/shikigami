@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { observerType } from './Observer.vue'
+import type { ObserverType } from './Observer.vue'
 import { SvgClass } from './Svg.vue'
 import type { svgType } from './Svg.vue'
 import type { timeBase } from './Suntime.vue'
@@ -41,7 +41,7 @@ type DaysData = {
   data: Array<{ date: number, value: number }>
 }
 // SHIKIGAMIメインルーチン
-export const shikigami = (observer: observerType, flagDraw: {
+export const shikigami = (observer: ObserverType, flagDraw: {
   isDrawEarth: boolean,
   isDrawMoon: boolean,
   isDrawMercury: boolean,

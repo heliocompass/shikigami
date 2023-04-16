@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { observerType } from '../Observer.vue'
+import type { ObserverType } from '../Observer.vue'
 import type { svgType } from '../Svg.vue'
 import { AstroClass } from '../Astro.vue'
 import { SuntimeClass } from '../Suntime.vue'
@@ -29,7 +29,7 @@ type PlanetPositions = {
  */
 export const drawMercury = (
   svg: svgType,
-  observer: observerType,
+  observer: ObserverType,
   drawTime: timeBase
 ) => {
   const svgInR = 130.3795;// 水星近点軌道の半径(px)

@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { observerType } from '../Observer.vue'
+import type { ObserverType } from '../Observer.vue'
 import type { svgType } from '../Svg.vue'
 import { AstroClass } from '../Astro.vue'
 import { SuntimeClass } from '../Suntime.vue'
@@ -28,7 +28,7 @@ type PlanetPositions = {
  */
 export const drawMars = (
   svg: svgType,
-  observer: observerType,
+  observer: ObserverType,
   drawTime: timeBase,
 ) => {
   const svgInR = 585.71316; // 火星の近点軌道

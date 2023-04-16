@@ -43,15 +43,15 @@ export class SuntimeClass {
   northMjd: number;
   southMjd: number;
 
+
   /**
-   * 太陽に関する各時刻を出力
+   * Observerインスタンスを生成する
    * @param dt 日時
    * @param longitude 経度
    * @param latitude 緯度
    * @param timezone タイムゾーン
    */
   constructor(dt: Date, longitude: number, latitude: number, timezone: number) {
-    let sunrise0Mjd: number, sunset0Mjd: number;
     this.initDt = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0);
     this.noonDt = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 12, 0, 0);
     this.initMjd = AstroClass.mjd(this.initDt, timezone);
@@ -65,9 +65,9 @@ export class SuntimeClass {
 
     // 南中時刻は緯度0で計算する（南中時刻は緯度によらないので、これで全緯度に適応できる）
     // 緯度0の日の出時刻の逐次近似計算（フラグ0）
-    sunrise0Mjd = this.approximate(longitude, 0, 0);
+    const sunrise0Mjd = this.approximate(longitude, 0, 0);
     // 緯度0の日の入り時刻の逐次近似計算（フラグ1）
-    sunset0Mjd = this.approximate(longitude, 0, 1);
+    const sunset0Mjd = this.approximate(longitude, 0, 1);
     this.southMjd = (sunrise0Mjd + sunset0Mjd) / 2;
 
     // 北中時刻は南中時刻-12時間で計算する
@@ -80,19 +80,26 @@ export class SuntimeClass {
     this.northDt = AstroClass.dt(this.northMjd, timezone);
   }
 
-  /** 太陽の出没時刻の逐次近似計算 */
-  approximate(longitude: number, latitude: number, flag: 0 | 1) {
+  /**
+   * 太陽の出没時刻の逐次近似計算
+   * @param longitude - 観測地点の経度 [deg]
+   * @param latitude - 観測地点の緯度 [deg]
+   * @param flag - 0: 日出時刻計算, 1: 日没時刻計算
+   * @returns 太陽が出る（または没する）時刻の修正ユリウス日
+   */
+  approximate(longitude: number, latitude: number, flag: 0 | 1): number {
     let d: number, delta_d: number;
     let t: number, eclipticObliquity: number, siderealTime: number, hourAngle: number;
     let sun: Star;
     let eq: [number, number] = [0, 0];
-    let ra: number, decl;
-    let parallax, h0, h1
-    let k_ha, delta_ha;
+    let ra: number, decl: number;
+    let parallax: number, h0: number, h1: number;
+    let k_ha: number, delta_ha: number;
 
     d = 0;
     delta_ha = 1;
 
+    // delta_haが閾値を下回るまで近似計算を繰り返す
     while (Math.abs(delta_ha) > 0.00005) {
       t = AstroClass.t(this.noonMjd + d);
       eclipticObliquity = AstroClass.eclipticObliquity(t);
@@ -102,14 +109,17 @@ export class SuntimeClass {
       ra = eq[0], decl = eq[1];
       hourAngle = AstroClass.hourAngle(siderealTime, ra);
 
+      // 水平座標系の計算
       parallax = Math.sin((0.00244277 / sun.r - 0.26656801 / sun.r - 0.575783) * RAD);
       h0 = Math.sin(decl * RAD) * Math.sin(latitude * RAD);
       h1 = Math.cos(decl * RAD) * Math.cos(latitude * RAD);
       k_ha = Math.acos((parallax - h0) / h1) * DEG;
 
+      // 日の出・日の入りの場合、hourAngleが負の値になるため、k_haも負の値に修正する
       if (flag == 0 && k_ha > 0) k_ha = -k_ha;
       if (flag == 1 && k_ha < 0) k_ha = -k_ha;
 
+      // 計算された時角と修正ユリウス日の差
       delta_ha = k_ha - hourAngle;
       if (delta_ha < -180) {
         delta_ha += 360;
@@ -117,15 +127,17 @@ export class SuntimeClass {
         delta_ha -= 360;
       }
 
+      // 修正ユリウス日の補正量
       delta_d = delta_ha / 360.0;
       d += delta_d;
     }
     return this.noonMjd + d;
   }
 
+
   /**
    * 開始時刻
-   * @param timeBase 時刻基準 
+   * @param timeBase 時刻基準
    * @return 正子 or 北中時刻
    */
   startDt = (timeBase: timeBase): Date => {
@@ -133,7 +145,7 @@ export class SuntimeClass {
   }
   /**
    * 昼時刻
-   * @param timeBase 時刻基準 
+   * @param timeBase 時刻基準
    * @return 正午 or 南中時刻
    */
   middleDt = (timeBase: timeBase): Date => {

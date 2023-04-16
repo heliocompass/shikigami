@@ -5,148 +5,151 @@ const DEG = 1 / RAD;
 
 export class CoordClass {
 
-  /** 日心黄道座標から地心黄道座標（視位置）に変換する */
-  static HelioEC2GeoEC(y: number, b: number, r: number, ys: number, rs: number) {
-    let ac: number, bc: number, cc: number, rc: number;
-    let geoY: number, geoB: number, ecliptiCoordinates: [number, number] = [0, 0];
+  /**
+   * 日心黄道座標から地心黄道座標（視位置）に変換する
+   * @param helioLong 日心黄経
+   * @param helioLat 日心黄緯
+   * @param helioDist 日地間距離
+   * @param geoLong 地心の視黄経
+   * @param geoLat 地心の視黄緯
+   * @returns [地心黄経, 地心黄緯]
+   */
+  static HelioEC2GeoEC(helioLong: number, helioLat: number, helioDist: number, geoLong: number, geoLat: number): [number, number] {
+    const radHelioLong = helioLong * RAD;
+    const radHelioLat = helioLat * RAD;
+    const radGeoLong = (geoLong + 0.0057) * RAD;
 
-    y *= RAD;
-    b *= RAD;
-    // ysは光行差を考慮した地心の視黄経なので幾何学的黄経にする
-    ys = (ys + 0.0057) * RAD;
+    const ac = helioDist * Math.cos(radHelioLat) * Math.cos(radHelioLong) + geoLat * Math.cos(radGeoLong);
+    const bc = helioDist * Math.cos(radHelioLat) * Math.sin(radHelioLong) + geoLat * Math.sin(radGeoLong);
+    const cc = helioDist * Math.sin(radHelioLat);
+    const rc = Math.sqrt(ac * ac + bc * bc + cc * cc);
 
-    ac = r * Math.cos(b) * Math.cos(y) + rs * Math.cos(ys);
-    bc = r * Math.cos(b) * Math.sin(y) + rs * Math.sin(ys);
-    cc = r * Math.sin(b);
-    rc = Math.sqrt(ac * ac + bc * bc + cc * cc);
-    geoB = Math.asin(cc / rc);
-    geoY = Math.atan(bc / ac);
+    const geoLatRad = Math.asin(cc / rc);
+    let geoLongRad = Math.atan2(bc, ac);
 
-    if (ac < 0) {
-      geoY += Math.PI;
-    }
+    geoLongRad = geoLongRad < 0 ? geoLongRad + 2 * Math.PI : geoLongRad;
 
-    if (geoY < 0) {
-      geoY += Math.PI * 2;
-    }
-
-    ecliptiCoordinates = [geoY * DEG, geoB * DEG];
-    return ecliptiCoordinates;
+    return [geoLongRad * DEG, geoLatRad * DEG];
   }
 
-  /** 地心黄道座標から赤道座標に変換する */
-  static EC2EQ(y: number, b: number, e: number) {
-    let decl: number, ra: number;
-    let c: number, s: number;
-    let eq: [number, number] = [0, 0];
+  /**
+   * 地心黄道座標から赤道座標に変換する
+   * @param lon 地心黄経
+   * @param lat 地心黄緯
+   * @param eps 平均黄道傾斜角
+   * @returns [赤経, 赤緯]
+   */
+  static EC2EQ(lon: number, lat: number, eps: number): [number, number] {
+    const radLon = lon * RAD;
+    const radLat = lat * RAD;
+    const radEps = eps * RAD;
 
-    y *= RAD;
-    b *= RAD;
-    e *= RAD;
-    decl = Math.cos(b) * Math.sin(y) * Math.sin(e) + Math.sin(b) * Math.cos(e);
-    decl = Math.asin(decl);
-    c = Math.cos(b) * Math.cos(y);
-    s = Math.cos(b) * Math.sin(y) * Math.cos(e) - Math.sin(b) * Math.sin(e);
-    ra = Math.atan(s / c);
+    const decl = Math.asin(Math.sin(radLat) * Math.cos(radEps) + Math.cos(radLat) * Math.sin(radEps) * Math.sin(radLon));
+    const c = Math.cos(radLat) * Math.cos(radLon);
+    const s = Math.cos(radLat) * Math.sin(radLon) * Math.cos(radEps) - Math.sin(radLat) * Math.sin(radEps);
+    let ra = Math.atan2(s, c);
 
-    if (c < 0) {
-      ra += Math.PI;
-    }
+    ra = ra < 0 ? ra + 2 * Math.PI : ra;
 
-    if (ra < 0) {
-      ra += Math.PI * 2;
-    }
-
-    eq = [ra * DEG, decl * DEG];
-    return eq;
+    return [ra * DEG, decl * DEG];
   }
 
-  /** 赤道座標から地平座標に変換する */
-  static EQ2Horizon(decl: number, latitude: number, hourAngle: number) {
-    let azimuth: number, altitude: number; // 方位角、高度
-    let z0: number, z1: number, z2: number;
-    let horizon: [number, number] = [0, 0];
+  /**
+   * 赤道座標から地平座標に変換する
+   * @param decl 赤緯（degree）
+   * @param latitude 緯度（degree）
+   * @param hourAngle 時角（degree）
+   * @returns [方位角, 高度]
+   */
+  static EQ2Horizon(decl: number, latitude: number, hourAngle: number): [number, number] {
+    const declRad = decl * RAD;
+    const latitudeRad = latitude * RAD;
+    const hourAngleRad = hourAngle * RAD;
 
-    decl *= RAD;
-    latitude *= RAD;
-    hourAngle *= RAD;
+    const z0 = Math.cos(declRad) * Math.sin(latitudeRad) * Math.cos(hourAngleRad) - Math.sin(declRad) * Math.cos(latitudeRad);
+    const z1 = Math.cos(declRad) * Math.sin(hourAngleRad);
+    const z2 = Math.sin(latitudeRad) * Math.sin(declRad) + Math.cos(declRad) * Math.cos(latitudeRad) * Math.cos(hourAngleRad);
 
-    z0 = Math.cos(decl) * Math.sin(latitude) * Math.cos(hourAngle) - Math.sin(decl) * Math.cos(latitude);
-    z1 = Math.cos(decl) * Math.sin(hourAngle);
-    z2 = Math.sin(latitude) * Math.sin(decl) + Math.cos(decl) * Math.cos(latitude) * Math.cos(hourAngle);
-    azimuth = Math.atan(z1 / z0) * DEG;
+    let azimuth = Math.atan2(z1, z0) * DEG;
+    azimuth = azimuth < 0 ? azimuth + 360 : azimuth;
+    azimuth = z0 < 0 ? azimuth + 180 : azimuth;
 
-    if (z0 > 0 && azimuth < 0) {
-      azimuth += 360;
-    }
-
-    if (z0 < 0) {
-      azimuth += 180;
-    }
-
-    altitude = Math.asin(z2) * DEG;
-    // 大気差補正
+    let altitude = Math.asin(z2) * DEG;
     altitude += 0.0167 / Math.tan((altitude + 8.6 / (altitude + 4.4)) * RAD);
 
-    horizon = [azimuth, altitude];
-    return horizon;
+    return [azimuth, altitude];
+  }
+  /**
+   * 地平座標から投影位置を求める（ドームマスター距離射影）
+   * @param azimuth 方位角（度数法）
+   * @param altitude 高度（度数法）
+   * @param r 投影半径
+   * @returns 投影位置 [x, y]
+   */
+  static Horizon2Dome(azimuth: number, altitude: number, r: number): [number, number] {
+    const radAzimuth = azimuth * RAD;
+    const radAltitude = altitude * RAD;
+
+    const x = r / 90 * (90 - altitude) * Math.sin(radAzimuth);
+    const y = r / 90 * (90 - altitude) * Math.cos(radAzimuth);
+
+    return [x, y];
   }
 
-  /** 地平座標から投影位置を求める（ドームマスター距離射影） */
-  static Horizon2Dome(azimuth: number, altitude: number, r: number) {
-    let x: number, y: number;
-    let display: [number, number] = [0, 0];
+  /**
+   * 地平座標から投影位置を求める（ステレオ半球射影）
+   * @param azimuth 方位角
+   * @param altitude 高度
+   * @param r 半径
+   * @returns 投影位置 [x, y]
+   */
+  static Horizon2Stereo(azimuth: number, altitude: number, r: number): [number, number] {
+    const radAlt = altitude * RAD;
+    const radAz = azimuth * RAD;
 
-    azimuth *= RAD;
-    x = r / 90 * (90 - altitude) * Math.sin(azimuth);
-    y = r / 90 * (90 - altitude) * Math.cos(azimuth);
+    const cosQ = Math.cos(radAlt) * Math.cos(radAz);
+    const q = Math.acos(cosQ);
+    const sinV = Math.sin(radAz) * Math.cos(radAlt) / Math.sin(q);
+    const v = Math.asin(sinV);
+    const l = r * q * 0.64;
 
-    display = [x, y];
-    return display;
+    const x = r + l * Math.sin(v);
+    const y = r - l * Math.cos(v);
+
+    return [x, y];
   }
 
-  /** 地平座標から投影位置を求める（ステレオ半球射影） */
-  static Horizon2Stereo(azimuth: number, altitude: number, r: number) {
-    let cosQ: number, q: number, sinV: number, v: number, l: number;
-    let x: number, y: number;
-    let display: [number, number] = [0, 0];
 
-    cosQ = Math.cos(altitude * RAD) * Math.cos(azimuth * RAD);
-    q = Math.acos(cosQ);
-    sinV = Math.sin(azimuth * RAD) * Math.cos(altitude * RAD) / Math.sin(q);
-    v = Math.asin(sinV);
-    l = r * q * 0.64;
-    x = r + l * Math.sin(v);
-    y = r - l * Math.cos(v);
+  /**
+   * 平面極座標から直交座標に変換する（Canvas/SVG座標系）
+   * @param r 半径
+   * @param theta 角度
+   * @returns [x座標, y座標]
+   */
+  static canvasAxis(r: number, theta: number): [number, number] {
+    const x = r * Math.cos(theta * RAD);
+    const y = -r * Math.sin(theta * RAD);
 
-    display = [x, y];
-    return display;
+    return [x, y];
   }
 
-  /** 平面極座標から直交座標に変換する（Canvas/SVG座標系） */
-  static canvasAxis(r: number, theta: number) {
-    let x: number, y: number;
-    let canvasAxis: [number, number] = [0, 0];
 
-    x = r * Math.cos(theta * RAD);
-    y = -r * Math.sin(theta * RAD);
-
-    canvasAxis = [x, y];
-    return canvasAxis;
+  /**
+   * 球面極座標から直交座標に変換する（Three.js座標系）
+   * @param r 半径
+   * @param theta 水平角
+   * @param phi 仰角
+   * @returns 直交座標 [x, y, z]
+   */
+  static threeAxis(r: number, theta: number, phi: number): [number, number, number] {
+    const radTheta = theta * RAD;
+    const radPhi = phi * RAD;
+    const x = r * Math.sin(radPhi) * Math.cos(radTheta);
+    const y = r * Math.cos(radPhi);
+    const z = -r * Math.sin(radPhi) * Math.sin(radTheta);
+    return [x, y, z];
   }
 
-  /** 球面極座標から直交座標に変換する（Three.js座標系） */
-  static threeAxis(r: number, theta: number, phi: number) {
-    let x: number, y: number, z: number;
-    let threeAxis: [number, number, number] = [0, 0, 0];
-
-    x = r * Math.cos(phi * RAD) * Math.sin(theta * RAD);
-    y = r * Math.sin(phi * RAD);
-    z = -r * Math.cos(phi * RAD) * Math.cos(theta * RAD);
-
-    threeAxis = [x, y, z];
-    return threeAxis;
-  }
 
 }
 let defaultObject = {};
